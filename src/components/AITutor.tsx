@@ -82,6 +82,113 @@ Would you like me to generate a quiz on this topic? 🎯`,
 
 +45 XP for generating this quiz! 🎉`,
 
+  'Explain machine learning in Telugu language.': `## 🌐 మషిన్ లెర్నింగ్ (Machine Learning)
+
+మషిన్ లెర్నింగ్ అనేది కృత్రిమ మేధస్సు (AI) యొక్క ఒక భాగం. దీని ద్వారా కంప్యూటర్లకు ప్రత్యేకంగా కోడింగ్ రాయకుండా, అవి స్వయంగా డేటా నుండి నేర్చుకునేలా చేయవచ్చు.
+
+### ముఖ్యమైన రకాలు:
+1. **Supervised Learning (పర్యవేక్షించబడిన అభ్యాసం):** లేబుల్ చేయబడిన డేటాను ఉపయోగించి మోడల్‌కు శిక్షణ ఇవ్వడం. (ఉదా: ఈమెయిల్ స్పామ్ గుర్తింపు)
+2. **Unsupervised Learning (పర్యవేక్షించబడని అభ్యాసం):** లేబుల్ లేని డేటాలో దాగి ఉన్న నమూనాలను కనుగొనడం. (ఉదా: కస్టమర్ల సమూహ విభజన)
+3. **Reinforcement Learning (పునర్బల అభ్యాసం):** ట్రయల్ మరియు ఎర్రర్ ద్వారా బహుమతులు లేదా జరిమానాల ఆధారంగా నేర్చుకోవడం. (ఉదా: రోబోటిక్స్, ఆటలు)
+
+మరింత సమాచారం కావాలా? నన్ను అడగండి! 🚀`,
+
+  'Create 5 flashcards for the key concepts in Deep Learning.': `## ⚡ Deep Learning Flashcards
+
+ఇక్కడ మీకోసం 5 ముఖ్యమైన ఫ్లాష్‌కార్డ్‌లు సిద్ధంగా ఉన్నాయి:
+
+**కార్డ్ 1. Epoch అంటే ఏమిటి?**
+- జవాబు: మొత్తం డేటాసెట్‌ను నెట్‌వర్క్ ద్వారా ఒకసారి పంపించడాన్ని ఒక Epoch అంటారు.
+
+**కార్డ్ 2. Overfitting అంటే ఏమిటి?**
+- జవాబు: మోడల్ కేవలం ట్రైనింగ్ డేటాను బట్టీ పట్టి, కొత్త డేటాపై సరిగ్గా పనిచేయకపోవడం.
+
+**కార్డ్ 3. Backpropagation పాత్ర ఏమిటి?**
+- జవాబు: గ్రేడియంట్లను లెక్కించి, తప్పులను తగ్గించడానికి నెట్‌వర్క్ బరువులను (Weights) సర్దుబాటు చేయడం.
+
+**కార్డ్ 4. Activation Function ఎందుకు ఉపయోగపడుతుంది?**
+- జవాబు: న్యూరల్ నెట్‌వర్క్‌లలో రేఖీయం కాని (Non-linear) గుణాలను ప్రవేశపెట్టడానికి.
+
+**కార్డ్ 5. Learning Rate అంటే ఏమిటి?**
+- జవాబు: బరువులను ఎంత వేగంగా లేదా నెమ్మదిగా మార్చాలో నిర్ణయించే నియంత్రణ పరామితి.
+
+ఫ్లాష్‌కార్డ్‌లను బాగా ప్రాక్టీస్ చేయండి! +30 XP 🌟`,
+
+  'Generate a Python coding problem about binary trees with solution.': `## 💻 Coding Challenge: Max Depth of Binary Tree
+
+**సమస్య:** ఒక బైనరీ ట్రీ యొక్క గరిష్ట లోతును (Maximum Depth) కనుగొనే పైథాన్ ఫంక్షన్‌ను వ్రాయండి.
+
+### పైథాన్ కోడ్ సొల్యూషన్:
+\`\`\`python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def maxDepth(root: TreeNode) -> int:
+    # బేస్ కేస్: ట్రీ ఖాళీగా ఉంటే లోతు 0
+    if not root:
+        return 0
+    
+    # లెఫ్ట్ మరియు రైట్ సబ్‌ట్రీల లోతును కనుగొనడం
+    left_depth = maxDepth(root.left)
+    right_depth = maxDepth(root.right)
+    
+    # గరిష్ట లోతుకు 1 జోడించి రిటర్న్ చేయడం
+    return max(left_depth, right_depth) + 1
+\`\`\`
+
+### సమయ సంక్లిష్టత (Time Complexity):
+- **O(N)** - ఇక్కడ N అనేది ట్రీలోని నోడ్ల సంఖ్య. ప్రతి నోడ్‌ను ఒకసారి సందర్శిస్తాము.
+
+ట్రై చేసి చూడండి! +50 XP 🏆`,
+
+  "Summarize the key points from today's lecture on neural networks.": `## 📋 Neural Networks Summary
+
+నేటి ఉపన్యాసంలోని ముఖ్యమైన అంశాల సారాంశం:
+
+1. **న్యూరాన్ల నిర్మాణం:** ఇన్పుట్ పొర (Input Layer), దాగి ఉన్న పొరలు (Hidden Layers) మరియు అవుట్పుట్ పొర (Output Layer).
+2. **ఫీడ్-ఫార్వర్డ్ (Feed-forward):** ఇన్పుట్ డేటా ముందు వైపునకు ప్రయాణించి ప్రెడిక్షన్‌ను ఇవ్వడం.
+3. **లాస్ కాలిక్యులేషన్ (Loss Calculation):** మోడల్ అంచనాలు మరియు అసలైన విలువల మధ్య గల వ్యత్యాసాన్ని కొలవడం.
+4. **ఆప్టిమైజేషన్ (Optimization):** Gradient Descent ద్వారా నష్టాన్ని తగ్గించి కచ్చితత్వాన్ని పెంచడం.
+
+ఈ అంశాలపై ఏవైనా సందేహాలు ఉంటే అడగగలరు! 💡`,
+
+  'Generate Notes': `## 📝 Lesson Notes: Transformer Models
+- **Introduction:** Devised by Google in 2017 to handle translation tasks.
+- **Key Advantage:** Replaces sequential recurrence (RNN) with parallel attention.
+- **Core Component:** Self-attention layer that assigns relational weights to token inputs dynamically.
+- **Impact:** Scaled language modeling to billions of parameters, yielding GPT, BERT, Gemini, and Claude.
+
+Notes copied to study desk! +20 XP 🚀`,
+
+  'Create Quiz': `## 📝 Instant Quiz: Self-Attention
+1. **Which matrix determines the matching strength?** Query (Q) and Key (K).
+2. **What is the mathematical complexity of Self-Attention?** O(n²).
+3. **What activates parallel computation?** Removal of Recurrent Neural loops.
+
+Answer these questions in your dashboard to earn +30 XP!`,
+
+  'Explain Formula': `## 🧠 Self-Attention Mathematical Formulation
+\`\`\`
+Attention(Q, K, V) = softmax(QKᵀ / √d_k) · V
+\`\`\`
+- **Q (Query):** Represents the target token asking for context.
+- **K (Key):** Represents all tokens offering context.
+- **V (Value):** Contains the actual token content.
+- **√d_k:** Scales the dot product so softmax gradients do not saturate.
+
+Is there any part of this formula you'd like to break down?`,
+
+  'Translate to Hindi': `## 🌐 मशीन लर्निंग (हिन्दी में अनुवाद)
+मशीन लर्निंग (ML) आर्टिफिशियल इंटेलिजेंस का एक प्रमुख हिस्सा है। इसके अंतर्गत कंप्यूटर बिना किसी स्पष्ट कोडिंग के, उपलब्ध डेटा का विश्लेषण करके स्वतः नई चीजें सीख सकते हैं।
+
+### प्रमुख प्रकार:
+1. **Supervised Learning (सशर्त शिक्षण):** इसमें मॉडल को लेबल किए गए डेटा द्वारा प्रशिक्षित किया जाता है।
+2. **Unsupervised Learning (अशर्त शिक्षण):** इसमें बिना लेबल वाले डेटा में छिपे हुए पैटर्नों का पता लगाया जाता है।
+3. **Reinforcement Learning:** यह पुरस्कार और दंड प्रणाली के सिद्धांतों पर काम करता है।`,
+
   default: `I'm analyzing your question and preparing a personalized response...
 
 Based on your current learning path toward **AI Engineering**, here's what I recommend:

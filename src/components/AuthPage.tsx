@@ -252,6 +252,40 @@ export const AuthPage: React.FC = () => {
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '10px 0', marginTop: 8 }} disabled={loading}>
               {loading ? <Loader2 size={16} className="animate-spin" style={{ margin: '0 auto' }} /> : 'Sign In'}
             </button>
+
+            <div style={{ marginTop: 12, textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0' }}>
+                <div style={{ flex: 1, height: 1, background: 'var(--border-card)' }} />
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Demo Auto-Fill</span>
+                <div style={{ flex: 1, height: 1, background: 'var(--border-card)' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('aarav@vedaastra.ai'); setPassword('Password123!'); }}
+                  className="btn btn-secondary btn-sm"
+                  style={{ width: '100%', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                >
+                  <span>🤖</span> Student: Aarav Sharma
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('meera@vedaastra.ai'); setPassword('Password123!'); }}
+                  className="btn btn-secondary btn-sm"
+                  style={{ width: '100%', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                >
+                  <span>🎓</span> Educator: Dr. Meera Iyer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('talent@microsoft.com'); setPassword('Password123!'); }}
+                  className="btn btn-secondary btn-sm"
+                  style={{ width: '100%', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                >
+                  <span>💼</span> Recruiter: Microsoft Talent
+                </button>
+              </div>
+            </div>
           </form>
         )}
 

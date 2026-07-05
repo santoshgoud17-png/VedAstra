@@ -326,6 +326,35 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Video Demo Modal */}
+      {_videoPlaying && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', padding: 20 }}>
+          <div style={{ position: 'absolute', inset: 0 }} onClick={() => setVideoPlaying(false)} />
+          <div className="card" style={{ maxWidth: 800, width: '100%', padding: 0, overflow: 'hidden', position: 'relative', background: '#0D0E1A', border: '1px solid rgba(124,58,237,0.3)', boxShadow: '0 24px 64px rgba(124,58,237,0.25)', animation: 'scaleUp 0.3s ease' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-card)' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>🎬</span> VedAstra Platform Walkthrough & Demo
+              </span>
+              <button onClick={() => setVideoPlaying(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '1.2rem', cursor: 'pointer', fontWeight: 800 }}>&times;</button>
+            </div>
+            <div style={{ aspectRatio: '16/9', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              <div style={{ textAlign: 'center', color: 'white', padding: 24, zIndex: 1 }}>
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(124,58,237,0.2)', border: '2px solid #7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', animation: 'pulse 2s infinite' }}>
+                  <Play size={32} color="#7C3AED" fill="#7C3AED" style={{ marginLeft: 4 }} />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0 0 8px' }}>VedAstra AI Agent Learning Ecosystem</h3>
+                <p style={{ fontSize: '0.85rem', opacity: 0.8, maxWidth: 460, margin: '0 auto 16px' }}>
+                  Experience real-time AI-adaptive learning path customization, live whiteboard streams, and verified career match-making.
+                </p>
+                <button className="btn btn-primary btn-sm" onClick={() => { setVideoPlaying(false); setCurrentView('diagnostic'); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  Start Assessment Free →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

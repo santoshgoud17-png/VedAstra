@@ -68,8 +68,31 @@ export const Community: React.FC = () => {
                 onBlur={e => e.target.style.borderColor = 'var(--border-card)'}
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
-                <button className="btn btn-secondary btn-sm">Add Tags</button>
-                <button className="btn btn-primary btn-sm" onClick={() => setNewPost('')}>Post</button>
+                <button className="btn btn-secondary btn-sm" onClick={() => {
+                  const tag = prompt("Enter tag (without #):");
+                  if (tag) setNewPost(p => p + ` #${tag}`);
+                }}>Add Tags</button>
+                <button className="btn btn-primary btn-sm" onClick={() => {
+                  if (!newPost.trim()) return;
+                  const newPostObj = {
+                    id: Date.now().toString(),
+                    author: 'Aarav Sharma',
+                    authorRole: 'Student Developer',
+                    authorInitials: 'AS',
+                    authorColor: 'linear-gradient(135deg, #7C3AED, #0EA5E9)',
+                    content: newPost,
+                    timeAgo: 'Just now',
+                    category: 'discussion' as const,
+                    tags: ['AIEngineering', 'VedAstra'],
+                    likes: 1,
+                    comments: 0,
+                    shares: 0,
+                    liked: true,
+                    bookmarked: false
+                  };
+                  setPosts(prev => [newPostObj, ...prev]);
+                  setNewPost('');
+                }}>Post</button>
               </div>
             </div>
           </div>
