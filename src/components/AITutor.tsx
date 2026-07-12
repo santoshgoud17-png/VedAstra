@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { AI_LESSON_CONTENT } from '../demoData';
+import { useTranslation } from '../i18n';
 import { Send, Mic, Paperclip, BookOpen, Zap, RotateCcw } from 'lucide-react';
 
 interface Message {
@@ -11,13 +12,14 @@ interface Message {
   type?: 'text' | 'code' | 'quiz' | 'flashcard';
 }
 
-const EXAMPLE_PROMPTS = [
-  { icon: '🔮', label: 'Explain Transformers', prompt: 'Explain how the Transformer architecture works in simple terms.' },
-  { icon: '📝', label: 'Generate MCQs', prompt: 'Generate 5 multiple choice questions about Attention mechanisms.' },
-  { icon: '🌐', label: 'Explain in Telugu', prompt: 'Explain machine learning in Telugu language.' },
-  { icon: '⚡', label: 'Create Flashcards', prompt: 'Create 5 flashcards for the key concepts in Deep Learning.' },
-  { icon: '💻', label: 'Coding Problem', prompt: 'Generate a Python coding problem about binary trees with solution.' },
-  { icon: '📋', label: 'Summarize Lecture', prompt: 'Summarize the key points from today\'s lecture on neural networks.' },
+// Prompt chips — labels translated at render time via useTranslation
+const EXAMPLE_PROMPT_DEFS = [
+  { icon: '🔮', labelKey: 'tutor.explainTransformers', prompt: 'Explain how the Transformer architecture works in simple terms.' },
+  { icon: '📝', labelKey: 'tutor.generateMCQs', prompt: 'Generate 5 multiple choice questions about Attention mechanisms.' },
+  { icon: '🌐', labelKey: 'tutor.explainLocal', prompt: 'Explain machine learning in Telugu language.' },
+  { icon: '⚡', labelKey: 'tutor.createFlashcards', prompt: 'Create 5 flashcards for the key concepts in Deep Learning.' },
+  { icon: '💻', labelKey: 'tutor.debugCode', prompt: 'Generate a Python coding problem about binary trees with solution.' },
+  { icon: '📋', labelKey: 'tutor.practiceProblems', prompt: 'Summarize the key points from today\'s lecture on neural networks.' },
 ];
 
 const AI_RESPONSES: Record<string, string> = {
@@ -204,6 +206,7 @@ What specific topic would you like to explore deeper? I can generate notes, flas
 
 export const AITutor: React.FC = () => {
   const { activeStudent, addXp } = useApp();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -340,12 +343,12 @@ export const AITutor: React.FC = () => {
 
         {/* Example Prompts */}
         <div style={{ padding: '0 16px 8px', display: 'flex', gap: 6, overflowX: 'auto', flexWrap: 'wrap' }}>
-          {EXAMPLE_PROMPTS.map(p => (
-            <button key={p.label} onClick={() => sendMessage(p.prompt)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-card)', borderRadius: 20, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap', transition: '0.15s', flexShrink: 0 }}
+          {EXAMPLE_PROMPT_DEFS.map(p => (
+            <button key={p.labelKey} onClick={() => sendMessage(p.prompt)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-card)', borderRadius: 20, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap', transition: '0.15s', flexShrink: 0 }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(124,58,237,0.3)'; e.currentTarget.style.color = 'var(--accent-primary)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-card)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
             >
-              <span>{p.icon}</span> {p.label}
+              <span>{p.icon}</span> {t(p.labelKey as any)}
             </button>
           ))}
         </div>
@@ -360,7 +363,7 @@ export const AITutor: React.FC = () => {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-              placeholder="Ask me anything about your courses..."
+              placeholder={t('tutor.askAnything')}
               rows={1}
               style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', resize: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontFamily: 'var(--font-body)', lineHeight: 1.4 }}
             />
@@ -411,7 +414,7 @@ export const AITutor: React.FC = () => {
             style={{ minHeight: 160, background: cardFlipped ? 'linear-gradient(135deg, #7C3AED 0%, #0EA5E9 100%)' : 'var(--bg-tertiary)', borderRadius: 'var(--border-radius-md)', padding: '20px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', transition: 'all 0.4s ease', border: '1px solid var(--border-card)', gap: 8 }}
           >
             <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: cardFlipped ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)' }}>
-              {cardFlipped ? 'ANSWER' : 'QUESTION — CLICK TO FLIP'}
+              {cardFlipped ? 'ANSWER' : `${t('tutor.flipCard').toUpperCase()}`}
             </div>
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: cardFlipped ? 'white' : 'var(--text-primary)', lineHeight: 1.5, margin: 0 }}>
               {cardFlipped ? AI_LESSON_CONTENT.flashcards[currentCard].back : AI_LESSON_CONTENT.flashcards[currentCard].front}
@@ -419,8 +422,8 @@ export const AITutor: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => { setCurrentCard(c => Math.max(0, c - 1)); setCardFlipped(false); }}>← Prev</button>
-            <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => { setCurrentCard(c => (c + 1) % AI_LESSON_CONTENT.flashcards.length); setCardFlipped(false); }}>Next →</button>
+            <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => { setCurrentCard(c => Math.max(0, c - 1)); setCardFlipped(false); }}>{t('tutor.prevCard')}</button>
+            <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => { setCurrentCard(c => (c + 1) % AI_LESSON_CONTENT.flashcards.length); setCardFlipped(false); }}>{t('tutor.nextCard')}</button>
           </div>
         </div>
       </div>

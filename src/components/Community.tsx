@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { COMMUNITY_POSTS } from '../demoData';
+import { useTranslation } from '../i18n';
 import { Heart, MessageSquare, Share2, Bookmark, Users, TrendingUp } from 'lucide-react';
 
 const TRENDING_TOPICS = [
@@ -23,6 +24,7 @@ export const Community: React.FC = () => {
   const [posts, setPosts] = useState(COMMUNITY_POSTS.map(p => ({ ...p })));
   const [activeFilter, setActiveFilter] = useState<'all' | 'discussion' | 'showcase' | 'hackathon' | 'question'>('all');
   const [newPost, setNewPost] = useState('');
+  const { t } = useTranslation();
 
   const toggleLike = (id: string) => {
     setPosts(prev => prev.map(p =>
@@ -48,7 +50,7 @@ export const Community: React.FC = () => {
         <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
           {['all', 'discussion', 'showcase', 'hackathon', 'question'].map(f => (
             <button key={f} onClick={() => setActiveFilter(f as any)} style={{ padding: '7px 16px', borderRadius: 20, border: `1.5px solid ${activeFilter === f ? 'var(--accent-primary)' : 'var(--border-card)'}`, background: activeFilter === f ? 'rgba(124,58,237,0.08)' : 'var(--bg-card)', color: activeFilter === f ? 'var(--accent-primary)' : 'var(--text-secondary)', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', transition: '0.15s', textTransform: 'capitalize' }}>
-              {f === 'all' ? '🌐 All' : f === 'discussion' ? '💬 Discussion' : f === 'showcase' ? '🚀 Showcase' : f === 'hackathon' ? '🏆 Hackathon' : '❓ Q&A'}
+              {f === 'all' ? `🌐 ${t('community.allPosts')}` : f === 'discussion' ? `💬 ${t('community.discussion')}` : f === 'showcase' ? `🚀 ${t('community.showcase')}` : f === 'hackathon' ? '🏆 Hackathon' : '❓ Q&A'}
             </button>
           ))}
         </div>
@@ -61,7 +63,7 @@ export const Community: React.FC = () => {
               <textarea
                 value={newPost}
                 onChange={e => setNewPost(e.target.value)}
-                placeholder="Share your learning progress, ask a question, or showcase a project..."
+                placeholder={t('community.writePost')}
                 rows={2}
                 style={{ width: '100%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-card)', borderRadius: 'var(--border-radius-sm)', padding: '10px 14px', color: 'var(--text-primary)', fontSize: '0.875rem', fontFamily: 'var(--font-body)', outline: 'none', resize: 'none', transition: 'border-color 0.2s' }}
                 onFocus={e => e.target.style.borderColor = 'rgba(124,58,237,0.3)'}
@@ -71,7 +73,7 @@ export const Community: React.FC = () => {
                 <button className="btn btn-secondary btn-sm" onClick={() => {
                   const tag = prompt("Enter tag (without #):");
                   if (tag) setNewPost(p => p + ` #${tag}`);
-                }}>Add Tags</button>
+                }}>{t('community.addTags')}</button>
                 <button className="btn btn-primary btn-sm" onClick={() => {
                   if (!newPost.trim()) return;
                   const newPostObj = {
@@ -92,7 +94,7 @@ export const Community: React.FC = () => {
                   };
                   setPosts(prev => [newPostObj, ...prev]);
                   setNewPost('');
-                }}>Post</button>
+                }}>{t('action.post')}</button>
               </div>
             </div>
           </div>
@@ -158,7 +160,7 @@ export const Community: React.FC = () => {
         <div className="chart-container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <TrendingUp size={16} color="var(--accent-primary)" />
-            <h3 className="heading-sm" style={{ margin: 0 }}>Trending Topics</h3>
+            <h3 className="heading-sm" style={{ margin: 0 }}>{t('community.trending')}</h3>
           </div>
           {TRENDING_TOPICS.map((t, i) => (
             <div key={t.tag} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < TRENDING_TOPICS.length - 1 ? '1px solid var(--border-card)' : 'none', cursor: 'pointer' }}>
@@ -172,14 +174,14 @@ export const Community: React.FC = () => {
         <div className="chart-container">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <Users size={16} color="var(--accent-primary)" />
-            <h3 className="heading-sm" style={{ margin: 0 }}>Study Groups</h3>
+            <h3 className="heading-sm" style={{ margin: 0 }}>{t('community.studyGroups')}</h3>
           </div>
           {STUDY_GROUPS.map(g => (
             <div key={g.name} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border-card)', cursor: 'pointer' }}>
               <div style={{ width: 36, height: 36, borderRadius: 'var(--border-radius-sm)', background: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>{g.emoji}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{g.name}</div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{g.members.toLocaleString()} members</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{g.members.toLocaleString()} {t('community.members')}</div>
               </div>
               {g.active && <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', flexShrink: 0 }} />}
             </div>

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { DEMO_COURSES, AI_LESSON_CONTENT } from '../demoData';
+import { useTranslation } from '../i18n';
 import { Play, Pause, SkipForward, Volume2, Maximize, Star, Users, Clock, ChevronDown, ChevronRight, Sparkles, Brain, BookOpen, Layers, FileText, Code2, CheckSquare, Download } from 'lucide-react';
 
-const AI_TABS = [
-  { id: 'notes', label: 'Notes', icon: FileText },
-  { id: 'quiz', label: 'Quiz', icon: CheckSquare },
-  { id: 'flashcards', label: 'Flashcards', icon: Layers },
-  { id: 'mindmap', label: 'Mind Map', icon: Brain },
-  { id: 'code', label: 'Coding', icon: Code2 },
-  { id: 'formula', label: 'Formulas', icon: BookOpen },
+// Tab definitions — labels translated at render time
+const AI_TAB_DEFS = [
+  { id: 'notes', labelKey: 'course.aiNotes', icon: FileText },
+  { id: 'quiz', labelKey: 'course.quiz', icon: CheckSquare },
+  { id: 'flashcards', labelKey: 'course.flashcards', icon: Layers },
+  { id: 'mindmap', labelKey: 'course.mindMap', icon: Brain },
+  { id: 'code', labelKey: 'course.coding', icon: Code2 },
+  { id: 'formula', labelKey: 'course.formulas', icon: BookOpen },
 ];
 
 const MODULES = [
@@ -41,6 +43,7 @@ const MODULES = [
 
 export const VideoPlayer: React.FC = () => {
   const { activeCourseId } = useApp();
+  const { t } = useTranslation();
   const course = DEMO_COURSES.find(c => c.id === activeCourseId) || DEMO_COURSES[0];
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -128,8 +131,8 @@ export const VideoPlayer: React.FC = () => {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn btn-secondary btn-sm"><Download size={13} /> Download</button>
-                <button className="btn btn-primary btn-sm">Mark Complete</button>
+                <button className="btn btn-secondary btn-sm"><Download size={13} /> {t('action.download')}</button>
+                <button className="btn btn-primary btn-sm">{t('course.completed')}</button>
               </div>
             </div>
           </div>
@@ -179,11 +182,11 @@ export const VideoPlayer: React.FC = () => {
 
         {/* Tab Strip */}
         <div style={{ display: 'flex', overflowX: 'auto', borderBottom: '1px solid var(--border-card)', flexShrink: 0 }}>
-          {AI_TABS.map(tab => {
+          {AI_TAB_DEFS.map(tab => {
             const Icon = tab.icon;
             return (
               <button key={tab.id} onClick={() => setActiveAiTab(tab.id)} style={{ display: 'flex', flex: '0 0 auto', alignItems: 'center', gap: 4, padding: '10px 12px', background: 'transparent', border: 'none', borderBottom: activeAiTab === tab.id ? '2px solid var(--accent-primary)' : '2px solid transparent', color: activeAiTab === tab.id ? 'var(--accent-primary)' : 'var(--text-muted)', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600, transition: '0.15s', whiteSpace: 'nowrap' }}>
-                <Icon size={13} /> {tab.label}
+                <Icon size={13} /> {t(tab.labelKey as any)}
               </button>
             );
           })}

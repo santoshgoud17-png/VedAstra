@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import type { LanguageCode, UserRole, View } from '../context/AppContext';
 import { DEMO_STUDENTS } from '../demoData';
+import { useTranslation } from '../i18n';
 import {
   LayoutDashboard, BookOpen, Target, Users, Brain,
   BarChart2, Award, Bell, Settings, Sun, Moon,
@@ -9,61 +10,56 @@ import {
   ChevronRight, Trophy, LogOut, Menu, X, Video
 } from 'lucide-react';
 
-interface NavSection {
-  label: string;
-  items: { id: View; label: string; icon: React.FC<any>; badge?: string | number }[];
-  roles: UserRole[];
-}
-
-const NAV_SECTIONS: NavSection[] = [
+// Nav section IDs stay stable; labels are translated at render time
+const NAV_SECTION_DEFS: { labelKey: string; roles: UserRole[]; items: { id: View; labelKey: string; icon: React.FC<any>; badge?: string | number }[] }[] = [
   {
-    label: 'Learn',
+    labelKey: 'nav.learn',
     roles: ['student'],
     items: [
-      { id: 'student-dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'learn',             label: 'Courses',   icon: BookOpen },
-      { id: 'live-classes',      label: 'Live Classes', icon: Video },
-      { id: 'ai-tutor',         label: 'AI Tutor',  icon: Brain },
-      { id: 'skill-graph',      label: 'Skill Graph', icon: BarChart2 },
+      { id: 'student-dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+      { id: 'learn',             labelKey: 'nav.courses',   icon: BookOpen },
+      { id: 'live-classes',      labelKey: 'nav.liveClasses', icon: Video },
+      { id: 'ai-tutor',         labelKey: 'nav.aiTutor',  icon: Brain },
+      { id: 'skill-graph',      labelKey: 'nav.skillGraph', icon: BarChart2 },
     ],
   },
   {
-    label: 'Grow',
+    labelKey: 'nav.grow',
     roles: ['student'],
     items: [
-      { id: 'employability',    label: 'Career Engine',   icon: Target },
-      { id: 'leaderboard',     label: 'Leaderboard',     icon: Trophy },
-      { id: 'certificates',    label: 'Certificates',    icon: Award },
+      { id: 'employability',    labelKey: 'nav.careerEngine',   icon: Target },
+      { id: 'leaderboard',     labelKey: 'nav.leaderboard',     icon: Trophy },
+      { id: 'certificates',    labelKey: 'nav.certificates',    icon: Award },
     ],
   },
   {
-    label: 'Connect',
+    labelKey: 'nav.connect',
     roles: ['student', 'educator'],
     items: [
-      { id: 'community', label: 'Community', icon: Users },
+      { id: 'community', labelKey: 'nav.community', icon: Users },
     ],
   },
   {
-    label: 'Teach',
+    labelKey: 'nav.teach',
     roles: ['educator'],
     items: [
-      { id: 'educator-dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'live-classes',       label: 'Live Classes', icon: Video },
-      { id: 'community',          label: 'Community', icon: Users },
+      { id: 'educator-dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+      { id: 'live-classes',       labelKey: 'nav.liveClasses', icon: Video },
+      { id: 'community',          labelKey: 'nav.community', icon: Users },
     ],
   },
   {
-    label: 'Recruit',
+    labelKey: 'nav.recruit',
     roles: ['recruiter'],
     items: [
-      { id: 'recruiter-dashboard', label: 'Talent Board', icon: Users },
+      { id: 'recruiter-dashboard', labelKey: 'nav.talentBoard', icon: Users },
     ],
   },
   {
-    label: 'Admin',
+    labelKey: 'Admin',
     roles: ['admin'],
     items: [
-      { id: 'admin-dashboard', label: 'Platform Analytics', icon: BarChart2 },
+      { id: 'admin-dashboard', labelKey: 'nav.platformAnalytics', icon: BarChart2 },
     ],
   },
 ];
@@ -96,6 +92,7 @@ export const Sidebar: React.FC<NavigationProps> = ({ mobileOpen, setMobileOpen }
     isAuthenticated,
     logout,
   } = useApp();
+  const { t } = useTranslation();
 
   const [showStudentPicker, setShowStudentPicker] = useState(false);
 
@@ -104,7 +101,7 @@ export const Sidebar: React.FC<NavigationProps> = ({ mobileOpen, setMobileOpen }
     setMobileOpen(false);
   };
 
-  const filteredSections = NAV_SECTIONS.filter(s => s.roles.includes(userRole));
+  const filteredSections = NAV_SECTION_DEFS.filter(s => s.roles.includes(userRole));
   const xpToNextLevel = activeStudent.level * 500;
   const xpPercent = Math.min(100, (xp / xpToNextLevel) * 100);
 
@@ -187,9 +184,9 @@ export const Sidebar: React.FC<NavigationProps> = ({ mobileOpen, setMobileOpen }
       {/* Navigation Sections */}
       <div style={{ padding: '12px 12px 0', flex: 1 }}>
         {filteredSections.map(section => (
-          <div key={section.label} style={{ marginBottom: 4 }}>
+          <div key={section.labelKey} style={{ marginBottom: 4 }}>
             <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '8px 6px 4px' }}>
-              {section.label}
+              {t(section.labelKey as any)}
             </div>
             {section.items.map(item => {
               const Icon = item.icon;
@@ -197,7 +194,7 @@ export const Sidebar: React.FC<NavigationProps> = ({ mobileOpen, setMobileOpen }
               return (
                 <button key={item.id} onClick={() => handleNavClick(item.id)} className={`nav-item ${active ? 'active' : ''}`}>
                   <Icon size={16} style={{ flexShrink: 0 }} />
-                  <span style={{ flex: 1 }}>{item.label}</span>
+                  <span style={{ flex: 1 }}>{t(item.labelKey as any)}</span>
                   {item.badge !== undefined && (
                     <span style={{ background: 'var(--accent-primary)', color: 'white', fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px', borderRadius: '99px', minWidth: 18, textAlign: 'center' }}>
                       {item.badge}
@@ -216,14 +213,14 @@ export const Sidebar: React.FC<NavigationProps> = ({ mobileOpen, setMobileOpen }
         {!diagnosticCompleted && userRole === 'student' && (
           <button onClick={() => handleNavClick('diagnostic')} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '10px 12px', background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 'var(--border-radius-sm)', cursor: 'pointer', marginBottom: 4, color: 'var(--accent-primary)', fontSize: '0.82rem', fontWeight: 600 }}>
             <Brain size={14} />
-            Start AI Diagnostic
+            {t('nav.startDiagnostic')}
           </button>
         )}
         <button className="nav-item" onClick={() => handleNavClick('settings')}>
-          <Settings size={15} /> Settings
+          <Settings size={15} /> {t('nav.settings')}
         </button>
         <button className="nav-item" onClick={isAuthenticated ? logout : resetAll} style={{ color: 'var(--text-muted)' }}>
-          <LogOut size={15} /> {isAuthenticated ? 'Sign Out' : 'Reset Demo'}
+          <LogOut size={15} /> {isAuthenticated ? t('nav.signOut') : t('nav.resetDemo')}
         </button>
       </div>
     </>
@@ -259,6 +256,7 @@ export const Topbar: React.FC<NavigationProps> = ({ mobileOpen, setMobileOpen })
     setCurrentView,
     setCurrentView: nav,
   } = useApp();
+  const { t } = useTranslation();
 
   const [showLangPicker, setShowLangPicker] = useState(false);
 
@@ -285,7 +283,7 @@ export const Topbar: React.FC<NavigationProps> = ({ mobileOpen, setMobileOpen })
         <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
         <input
           type="text"
-          placeholder="Search courses, topics, instructors..."
+          placeholder={t('topbar.searchPlaceholder')}
           className="input-field"
           style={{ paddingLeft: 36, background: 'var(--bg-tertiary)', border: '1px solid var(--border-card)', fontSize: '0.875rem', padding: '8px 12px 8px 36px' }}
         />

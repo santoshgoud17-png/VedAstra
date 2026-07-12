@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import type { LiveClass } from '../demoData';
 import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n';
 
 interface ChatMsg { id: number; user: string; text: string; isAI?: boolean; time: string; }
 
@@ -47,6 +48,7 @@ const TB: React.FC<{ icon: React.ReactNode; label: string; active?: boolean; dan
 
 export const LiveClassroom: React.FC = () => {
   const { setCurrentView } = useApp();
+  const { t } = useTranslation();
   const [cls] = useState<LiveClass | null>(() => {
     try {
       return JSON.parse(sessionStorage.getItem('vc_active_class') || 'null');
@@ -189,7 +191,7 @@ export const LiveClassroom: React.FC = () => {
           {isRec && <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', padding: '5px 12px', borderRadius: 8, background: 'rgba(100,116,139,0.1)' }}>RECORDING - {c.duration}</span>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.75rem', color: '#64748B' }}><Users size={13} /> 347</div>
           <button onClick={leave} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}>
-            {isRec ? <><X size={14} /> Close</> : <><LogOut size={14} /> Leave</>}
+            {isRec ? <><X size={14} /> {t('action.close')}</> : <><LogOut size={14} /> {t('live.leaveStream')}</>}
           </button>
         </div>
       </div>
@@ -250,11 +252,11 @@ export const LiveClassroom: React.FC = () => {
             <TB icon={<Smile size={16} />} label="React" />
             <TB icon={<BarChart2 size={16} />} label="Poll" active={panel === 'poll'} onClick={() => setPanel(p => p === 'poll' ? null : 'poll')} />
             <TB icon={<MessageSquare size={16} />} label="Chat" active={panel === 'chat'} onClick={() => setPanel(p => p === 'chat' ? null : 'chat')} />
-            <TB icon={<Sparkles size={16} />} label="AI Notes" active={panel === 'notes'} onClick={() => setPanel(p => p === 'notes' ? null : 'notes')} />
+            <TB icon={<Sparkles size={16} />} label={t('live.notes')} active={panel === 'notes'} onClick={() => setPanel(p => p === 'notes' ? null : 'notes')} />
             <TB icon={<Users size={16} />} label="People" active={panel === 'people'} onClick={() => setPanel(p => p === 'people' ? null : 'people')} />
             <TB icon={<Download size={16} />} label="Notes" />
             <TB icon={<Maximize size={16} />} label="Fullscreen" />
-            {!isRec && <TB icon={<LogOut size={16} />} label="Leave" danger onClick={leave} />}
+            {!isRec && <TB icon={<LogOut size={16} />} label={t('live.leaveStream')} danger onClick={leave} />}
           </div>
         </div>
 
@@ -263,7 +265,7 @@ export const LiveClassroom: React.FC = () => {
             <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
               {(['notes', 'chat', 'people', 'poll'] as const).map(p => (
                 <button key={p} onClick={() => setPanel(p)} style={{ flex: 1, padding: '10px 4px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 600, color: panel === p ? '#A78BFA' : '#475569', borderBottom: '2px solid ' + (panel === p ? '#7C3AED' : 'transparent'), transition: 'all 0.15s' }}>
-                  {p === 'notes' ? 'AI' : p === 'chat' ? 'Chat' : p === 'people' ? 'People' : 'Poll'}
+                  {p === 'notes' ? 'AI' : p === 'chat' ? t('live.chatPlaceholder').substring(0, 4) : p === 'people' ? 'People' : 'Poll'}
                 </button>
               ))}
             </div>
@@ -308,7 +310,7 @@ export const LiveClassroom: React.FC = () => {
                   <div ref={endRef} />
                 </div>
                 <div style={{ padding: 10, borderTop: '1px solid rgba(255,255,255,0.07)', display: 'flex', gap: 8, flexShrink: 0 }}>
-                  <input value={inp} onChange={e => setInp(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} placeholder="Ask a question..." style={{ flex: 1, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#E2E8F0', fontSize: '0.8rem', outline: 'none' }} />
+                  <input value={inp} onChange={e => setInp(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} placeholder={t('live.chatPlaceholder')} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#E2E8F0', fontSize: '0.8rem', outline: 'none' }} />
                   <button onClick={send} style={{ padding: '8px 12px', borderRadius: 8, background: 'linear-gradient(135deg,#7C3AED,#6D28D9)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Send size={14} color="#fff" /></button>
                 </div>
               </>

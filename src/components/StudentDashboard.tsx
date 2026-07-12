@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { LEADERBOARD, DEMO_COURSES } from '../demoData';
+import { useTranslation } from '../i18n';
 import { BookOpen, Clock, Award, Target, ChevronRight, Play, Sparkles, Trophy } from 'lucide-react';
 
 // ──────────────────────────────────────────────────────
@@ -161,6 +162,7 @@ const StreakCalendar: React.FC<{ streak: number }> = ({ streak }) => {
 // ──────────────────────────────────────────────────────
 export const StudentDashboard: React.FC = () => {
   const { activeStudent, xp, streak, skills, setCurrentView, setActiveCourseId } = useApp();
+  const { t } = useTranslation();
 
   const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -190,7 +192,7 @@ export const StudentDashboard: React.FC = () => {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.8, marginBottom: 4 }}>Welcome back 👋</div>
+            <div style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.8, marginBottom: 4 }}>{t('dash.welcomeBack')} 👋</div>
             <h1 style={{ fontFamily: 'Outfit', fontSize: '1.8rem', fontWeight: 800, color: 'white', margin: 0, letterSpacing: '-0.02em' }}>
               {activeStudent.name}
             </h1>
@@ -202,7 +204,7 @@ export const StudentDashboard: React.FC = () => {
             <div style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', borderRadius: 'var(--border-radius-md)', padding: '12px 20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)' }}>
               <div style={{ fontSize: '1.6rem' }}>🔥</div>
               <div style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.4rem' }}>{streak}</div>
-              <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>Day Streak</div>
+              <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>{t('dash.dayStreak')}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', borderRadius: 'var(--border-radius-md)', padding: '12px 20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)' }}>
               <div style={{ fontSize: '1.6rem' }}>⚡</div>
@@ -218,17 +220,17 @@ export const StudentDashboard: React.FC = () => {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: '0.72rem', opacity: 0.8 }}>
           <span>{activeStudent.goalIcon} Goal: {activeStudent.goal}</span>
-          <span>{activeStudent.placementProbability}% Placement Probability</span>
+          <span>{activeStudent.placementProbability}% {t('dash.placementProbability')}</span>
         </div>
       </div>
 
       {/* ── Key Stats Row ── */}
       <div className="grid-4">
         {[
-          { icon: Clock,    color: '#7C3AED', bg: 'rgba(124,58,237,0.1)', label: 'Hours Learned',   value: activeStudent.hoursStudied, suffix: 'h', change: '+23h this week' },
-          { icon: BookOpen, color: '#0EA5E9', bg: 'rgba(14,165,233,0.1)',  label: 'Courses Active',  value: enrolledCourses.length, suffix: '', change: `${activeStudent.enrolledCourses.length} enrolled` },
-          { icon: Award,    color: '#F59E0B', bg: 'rgba(245,158,11,0.1)', label: 'Certificates',     value: activeStudent.certificates, suffix: '', change: '2 in progress' },
-          { icon: Trophy,   color: '#10B981', bg: 'rgba(16,185,129,0.1)', label: 'Leaderboard',      value: `#${selfRank}`, suffix: '', change: 'Top 1% globally', isString: true },
+          { icon: Clock,    color: '#7C3AED', bg: 'rgba(124,58,237,0.1)', label: t('dash.hoursLearned'),   value: activeStudent.hoursStudied, suffix: 'h', change: '+23h this week' },
+          { icon: BookOpen, color: '#0EA5E9', bg: 'rgba(14,165,233,0.1)',  label: t('dash.activeCourses'),  value: enrolledCourses.length, suffix: '', change: `${activeStudent.enrolledCourses.length} enrolled` },
+          { icon: Award,    color: '#F59E0B', bg: 'rgba(245,158,11,0.1)', label: t('dash.certificates'),     value: activeStudent.certificates, suffix: '', change: '2 in progress' },
+          { icon: Trophy,   color: '#10B981', bg: 'rgba(16,185,129,0.1)', label: t('dash.leaderboard'),      value: `#${selfRank}`, suffix: '', change: t('dash.topGlobally'), isString: true },
         ].map((s, i) => {
           const Icon = s.icon;
           return (
@@ -278,8 +280,8 @@ export const StudentDashboard: React.FC = () => {
           {/* Continue Learning */}
           <div>
             <div className="section-header">
-              <h3 className="heading-sm">Continue Learning</h3>
-              <button className="btn-ghost btn-sm" onClick={() => setCurrentView('learn')}>View All <ChevronRight size={13} /></button>
+              <h3 className="heading-sm">{t('dash.continueLearning')}</h3>
+              <button className="btn-ghost btn-sm" onClick={() => setCurrentView('learn')}>{t('action.view')} All <ChevronRight size={13} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {enrolledCourses.slice(0, 3).map((course, i) => (
@@ -349,7 +351,7 @@ export const StudentDashboard: React.FC = () => {
               <ProgressRing value={Math.round(Object.values(skills).reduce((a, b) => a + b, 0) / Object.values(skills).length)} color="#F59E0B" label="Avg Skill" />
             </div>
             <button className="btn btn-primary w-full" style={{ marginTop: 16 }} onClick={() => setCurrentView('employability')}>
-              <Target size={15} /> View Career Engine
+              <Target size={15} /> {t('career.careerEngine')}
             </button>
           </div>
 
@@ -378,7 +380,7 @@ export const StudentDashboard: React.FC = () => {
           <div className="chart-container">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
-                <h3 className="heading-sm" style={{ margin: 0 }}>Learning Streak</h3>
+                <h3 className="heading-sm" style={{ margin: 0 }}>{t('dash.dayStreak')}</h3>
                 <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: 0 }}>🔥 {streak} days active</p>
               </div>
               <span className="badge badge-amber">🔥 {streak}d</span>
@@ -388,7 +390,7 @@ export const StudentDashboard: React.FC = () => {
 
           {/* Badges */}
           <div className="chart-container">
-            <h3 className="heading-sm" style={{ marginBottom: 12 }}>Badges Earned</h3>
+            <h3 className="heading-sm" style={{ marginBottom: 12 }}>🏅 Badges Earned</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
               {activeStudent.badges.map(badge => (
                 <div key={badge.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '12px 8px', background: 'var(--bg-tertiary)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-card)', cursor: 'default' }}>
@@ -402,8 +404,8 @@ export const StudentDashboard: React.FC = () => {
           {/* Leaderboard */}
           <div className="chart-container">
             <div className="section-header" style={{ marginBottom: 12 }}>
-              <h3 className="heading-sm">Leaderboard</h3>
-              <button className="btn-ghost btn-sm" style={{ fontSize: '0.72rem', padding: '4px 8px' }} onClick={() => setCurrentView('leaderboard')}>Full</button>
+              <h3 className="heading-sm">{t('nav.leaderboard')}</h3>
+              <button className="btn-ghost btn-sm" style={{ fontSize: '0.72rem', padding: '4px 8px' }} onClick={() => setCurrentView('leaderboard')}>{t('action.view')}</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {LEADERBOARD.slice(0, 5).map((user) => (

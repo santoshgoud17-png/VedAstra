@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>VedAstra Platform Workflow Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--purple:#7C3AED;--blue:#0EA5E9;--green:#10B981;--amber:#F59E0B;--red:#EF4444;--pink:#EC4899;--bg:#0D0E1A;--card:#161728;--border:rgba(255,255,255,0.08);--text:#E2E8F0;--muted:#94A3B8}
+    body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+    .chrome{background:#0a0b14;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+    .logo{font-family:'Outfit';font-weight:900;font-size:1.1rem;background:linear-gradient(90deg,#7C3AED,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex-shrink:0}
+    .pw{flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;position:relative;cursor:pointer}
+    .pf{height:100%;border-radius:3px;background:linear-gradient(90deg,#7C3AED,#0EA5E9);transition:width .3s}
+    .pd{position:absolute;top:50%;transform:translateY(-50%);width:14px;height:14px;background:#fff;border-radius:50%;margin-left:-7px;box-shadow:0 2px 8px rgba(0,0,0,.4);transition:left .3s}
+    .cb{background:rgba(255,255,255,.07);border:1px solid var(--border);color:#fff;border-radius:8px;padding:6px 14px;font-size:.78rem;font-family:'Outfit';font-weight:600;cursor:pointer;white-space:nowrap}
+    .cb:hover{background:rgba(124,58,237,.3)}
+    .stage{flex:1;position:relative;overflow:hidden}
+    .slide{position:absolute;inset:0;opacity:0;transform:translateY(30px) scale(.97);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1);pointer-events:none}
+    .slide.active{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+    .slide.leaving{opacity:0;transform:translateY(-24px) scale(1.01)}
+    .slbl{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.35);border-radius:20px;padding:5px 16px;font-size:.7rem;font-weight:700;color:#a78bfa;letter-spacing:.06em;text-transform:uppercase;z-index:10;white-space:nowrap}
+    .sb{width:185px;background:#111220;border-right:1px solid var(--border);display:flex;flex-direction:column;padding:14px 10px;gap:3px;flex-shrink:0}
+    .brand{font-family:'Outfit';font-weight:900;font-size:1rem;margin-bottom:10px;padding-left:4px;background:linear-gradient(90deg,#7C3AED,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .ni{padding:9px 12px;border-radius:10px;font-size:.78rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:8px}
+    .ni.on{background:rgba(124,58,237,.12);color:#fff;border:1px solid rgba(124,58,237,.25)}
+    .tb{height:50px;background:#111220;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:12px;flex-shrink:0}
+    .rp{padding:5px 12px;border-radius:8px;font-size:.7rem;font-weight:700;text-transform:capitalize}
+    .rp.on{background:linear-gradient(135deg,#7C3AED,#0EA5E9);color:#fff}
+    .rp.off{background:transparent;color:var(--muted)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;flex:1}
+    .sv{font-family:'Outfit';font-weight:900;font-size:1.5rem}
+    .sl{font-size:.7rem;color:var(--muted);margin-top:2px;font-weight:600}
+    .ss{font-size:.62rem;color:#34d399;margin-top:3px}
+    .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.67rem;font-weight:700;letter-spacing:.03em}
+    .bp{background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.3)}
+    .bb{background:rgba(14,165,233,.15);color:#38bdf8;border:1px solid rgba(14,165,233,.3)}
+    .bg{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+    .ba{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+    .br{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+    .gt{background:linear-gradient(135deg,#7C3AED,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scaleIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.5)}70%{box-shadow:0 0 0 12px rgba(124,58,237,0)}}
+    @keyframes live{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+    @keyframes radar{from{stroke-dashoffset:600}to{stroke-dashoffset:0}}
+    .ldot{width:8px;height:8px;border-radius:50%;background:#EF4444;animation:live 1.4s infinite}
+    .row{display:flex} .col{flex-direction:column} .g{flex:1} .ac{align-items:center} .jb{justify-content:space-between} .jc{justify-content:center} .g8{gap:8px} .g10{gap:10px} .g12{gap:12px} .g14{gap:14px} .g16{gap:16px} .g18{gap:18px} .g20{gap:20px}
+  </style>
+</head>
+<body>
+<div class="chrome">
+  <span class="logo">&#9889; VedAstra</span>
+  <span style="font-size:.78rem;color:var(--muted);flex-shrink:0">Platform Workflow Demo</span>
+  <div class="pw" id="pw" onclick="seekTo(event)">
+    <div class="pf" id="pf" style="width:0%"></div>
+    <div class="pd" id="pd" style="left:0%"></div>
+  </div>
+  <span style="font-size:.78rem;color:var(--muted);white-space:nowrap" id="tmr">1/12</span>
+  <span style="background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);border-radius:20px;padding:4px 12px;font-size:.7rem;font-weight:700;color:#a78bfa;white-space:nowrap" id="steplbl">Step 1 of 12</span>
+  <button class="cb" id="playBtn" onclick="togglePlay()">&#9208; Pause</button>
+  <button class="cb" onclick="prevSlide()">&#8249; Prev</button>
+  <button class="cb" onclick="nextSlide()">Next &#8250;</button>
+</div>
+<div class="stage">
+
+<!-- S1 LANDING -->
+<div class="slide active" id="s0">
+  <div class="slbl">&#127760; Landing Page</div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 40%,rgba(124,58,237,.18),transparent 60%),radial-gradient(ellipse at 80% 60%,rgba(14,165,233,.12),transparent 60%)"></div>
+  <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px;text-align:center">
+    <div class="badge bp" style="animation:fadeUp .5s ease both">&#127881; Trusted by 1.2M+ learners &middot; 127 countries</div>
+    <h1 style="font-family:'Outfit';font-size:clamp(2rem,5vw,3.4rem);font-weight:900;line-height:1.1;animation:fadeUp .6s ease .1s both">Personalized AI Learning<br/><span class="gt">For The World</span></h1>
+    <p style="color:var(--muted);font-size:1rem;max-width:500px;line-height:1.65;animation:fadeUp .6s ease .2s both">Learn smarter. Teach globally. Get hired faster.<br/>VedAstra's AI adapts to your pace, maps your skills, and accelerates your career.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp .6s ease .3s both">
+      <div style="padding:12px 28px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#0EA5E9);font-family:'Outfit';font-weight:700;color:#fff">&#129504; Start Learning Free</div>
+      <div style="padding:12px 28px;border-radius:12px;border:1.5px solid var(--border);color:var(--muted);font-weight:600">&#127891; Become an Educator</div>
+      <div style="padding:12px 28px;border-radius:12px;border:1.5px solid var(--border);color:var(--muted);font-weight:600;display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.8rem">&#9654;</div>Watch Demo</div>
+    </div>
+    <div style="display:flex;gap:32px;flex-wrap:wrap;justify-content:center;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:20px 40px;animation:fadeUp .6s ease .4s both">
+      <div style="text-align:center"><div style="font-family:'Outfit';font-size:1.8rem;font-weight:900;color:#a78bfa">1.2M+</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">Active Students</div></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="text-align:center"><div style="font-family:'Outfit';font-size:1.8rem;font-weight:900;color:#38bdf8">94K+</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">Educators</div></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="text-align:center"><div style="font-family:'Outfit';font-size:1.8rem;font-weight:900;color:#34d399">127</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">&#127757; Countries</div></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="text-align:center"><div style="font-family:'Outfit';font-size:1.8rem;font-weight:900;color:#fbbf24">9.8M+</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">AI Notes Generated</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S2 LOGIN -->
+<div class="slide" id="s1">
+  <div class="slbl">&#128274; Login Page</div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 25% 50%,rgba(124,58,237,.15),transparent 60%)"></div>
+  <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div class="card" style="width:420px;padding:32px;border-color:rgba(124,58,237,.25);box-shadow:0 24px 60px rgba(124,58,237,.15);animation:scaleIn .5s ease">
+      <div style="text-align:center;margin-bottom:22px">
+        <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.4rem;box-shadow:0 8px 24px rgba(124,58,237,.35)">&#10024;</div>
+        <h2 style="font-family:'Outfit';font-weight:800;font-size:1.35rem">Welcome to VedAstra</h2>
+        <p style="color:var(--muted);font-size:.8rem;margin-top:4px">Sign in to access your AI Learning Dashboard</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.875rem;color:var(--muted)">&#128231; aarav@vedaastra.ai</div>
+        <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.875rem;color:var(--muted)">&#128274; &bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
+        <div style="background:linear-gradient(135deg,#7C3AED,#0EA5E9);border-radius:10px;padding:11px;text-align:center;font-family:'Outfit';font-weight:700;font-size:.9rem;color:#fff;margin-top:4px">Sign In</div>
+      </div>
+      <div style="margin-top:18px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Demo Auto-Fill</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="padding:9px 14px;border-radius:9px;border:1.5px solid rgba(124,58,237,.5);background:rgba(124,58,237,.12);font-size:.78rem;font-weight:600;color:#a78bfa;display:flex;align-items:center;gap:6px;animation:pulse 2s infinite">&#129776; Student: Aarav Sharma <span style="margin-left:auto;font-size:.65rem;background:rgba(124,58,237,.3);padding:2px 8px;border-radius:10px">Auto-filling...</span></div>
+          <div style="padding:9px 14px;border-radius:9px;border:1px solid var(--border);font-size:.78rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px">&#127891; Educator: Dr. Meera Iyer</div>
+          <div style="padding:9px 14px;border-radius:9px;border:1px solid var(--border);font-size:.78rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px">&#128188; Recruiter: Microsoft Talent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3 STUDENT DASHBOARD -->
+<div class="slide" id="s2">
+  <div class="slbl">&#128202; Student Dashboard</div>
+  <div style="display:flex;height:100%">
+    <div class="sb">
+      <div class="brand">&#9889; VedAstra</div>
+      <div style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);margin-bottom:8px">
+        <div style="font-size:.8rem;font-weight:700">Aarav Sharma</div>
+        <div style="font-size:.63rem;color:var(--muted)">Level 8 &middot; &#127919; AI Engineer</div>
+        <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:8px;overflow:hidden"><div style="width:72%;height:100%;background:linear-gradient(90deg,#7C3AED,#0EA5E9);border-radius:3px"></div></div>
+      </div>
+      <div class="ni on">&#128202; Dashboard</div><div class="ni">&#128218; Courses</div><div class="ni">&#127909; Live Classes</div>
+      <div class="ni">&#129504; AI Tutor</div><div class="ni">&#128200; Skill Graph</div><div class="ni">&#127919; Career Engine</div>
+      <div class="ni">&#127942; Leaderboard</div><div class="ni">&#127885; Certificates</div><div class="ni">&#128101; Community</div>
+    </div>
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="tb">
+        <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.8rem;color:var(--muted)">&#128269; Search courses, topics...</div>
+        <div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px">
+          <span class="rp on">student</span><span class="rp off">educator</span><span class="rp off">recruiter</span>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:linear-gradient(135deg,#7C3AED,#0EA5E9);border-radius:16px;padding:22px 26px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-20px;right:-20px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+            <div><div style="font-size:.8rem;opacity:.8">Welcome back &#128075;</div><h2 style="font-family:'Outfit';font-size:1.6rem;font-weight:900;color:#fff">Aarav Sharma</h2><p style="opacity:.8;font-size:.85rem;margin-top:4px">Consistency beats talent every single day. &#128293;</p></div>
+            <div style="display:flex;gap:10px">
+              <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 16px;text-align:center"><div style="font-size:1.4rem">&#128293;</div><div style="font-family:'Outfit';font-weight:900;font-size:1.3rem;color:#fff">128</div><div style="font-size:.65rem;opacity:.8;color:#fff">Day Streak</div></div>
+              <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 16px;text-align:center"><div style="font-size:1.4rem">&#9889;</div><div style="font-family:'Outfit';font-weight:900;font-size:1.3rem;color:#fff">Lv.8</div><div style="font-size:.65rem;opacity:.8;color:#fff">12,450 XP</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px">
+          <div class="stat"><div class="sv" style="color:#a78bfa">284h</div><div class="sl">Hours Learned</div><div class="ss">+23h this week</div></div>
+          <div class="stat"><div class="sv" style="color:#38bdf8">5</div><div class="sl">Active Courses</div><div class="ss">5 enrolled</div></div>
+          <div class="stat"><div class="sv" style="color:#fbbf24">8</div><div class="sl">Certificates</div><div class="ss">2 in progress</div></div>
+          <div class="stat"><div class="sv" style="color:#34d399">#3</div><div class="sl">Leaderboard</div><div class="ss">Top 1% globally</div></div>
+        </div>
+        <div>
+          <div style="font-family:'Outfit';font-weight:700;font-size:.88rem;margin-bottom:8px">Continue Learning</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 16px">
+              <div style="width:42px;height:42px;border-radius:10px;background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">&#129776;</div>
+              <div style="flex:1"><div style="font-size:.85rem;font-weight:600">Machine Learning Masterclass</div><div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:6px;overflow:hidden"><div style="width:67%;height:100%;background:linear-gradient(90deg,#7C3AED,#0EA5E9);border-radius:3px"></div></div></div>
+              <span style="font-size:.72rem;font-weight:700;color:#a78bfa">67%</span>
+            </div>
+            <div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 16px">
+              <div style="width:42px;height:42px;border-radius:10px;background:rgba(14,165,233,.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">&#128274;</div>
+              <div style="flex:1"><div style="font-size:.85rem;font-weight:600">Advanced Cybersecurity</div><div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:6px;overflow:hidden"><div style="width:45%;height:100%;background:linear-gradient(90deg,#0EA5E9,#10B981);border-radius:3px"></div></div></div>
+              <span style="font-size:.72rem;font-weight:700;color:#38bdf8">45%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 VIDEO PLAYER -->
+<div class="slide" id="s3">
+  <div class="slbl">&#127902; Video Player &amp; AI Tools</div>
+  <div style="display:flex;height:100%">
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div style="background:#000;flex-shrink:0;position:relative;aspect-ratio:16/9;max-height:54%">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1040,#0e1a30);display:flex;align-items:center;justify-content:center">
+          <div style="text-align:center;color:#fff"><div style="font-family:'Outfit';font-size:1rem;font-weight:700;margin-bottom:4px">Attention Mechanism Deep Dive</div><div style="font-size:.75rem;opacity:.6">Machine Learning Masterclass &middot; Module 3</div></div>
+        </div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem">&#9208;</div>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent)">
+          <div style="height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-bottom:8px;overflow:hidden"><div style="width:34%;height:100%;background:linear-gradient(90deg,#7C3AED,#0EA5E9);border-radius:2px"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;color:#fff;font-size:.72rem"><span>&#9208;</span><span>&#9197;</span><span>&#128266;</span><span style="margin-left:auto;opacity:.7">24:18 / 71:40</span><span style="background:rgba(255,255,255,.15);padding:2px 6px;border-radius:4px">1.5x</span></div>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Course Content</div>
+        <div class="card" style="padding:10px 14px"><div style="display:flex;align-items:center;gap:8px"><div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.58rem;flex-shrink:0;color:#fff">&#10003;</div><div><div style="font-size:.78rem;font-weight:600">Module 1: Introduction to ML</div><div style="font-size:.63rem;color:var(--muted)">3 lessons &middot; 2h 15m &middot; Completed</div></div></div></div>
+        <div class="card" style="padding:10px 14px"><div style="display:flex;align-items:center;gap:8px"><div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.58rem;flex-shrink:0;color:#fff">&#10003;</div><div><div style="font-size:.78rem;font-weight:600">Module 2: Neural Networks</div><div style="font-size:.63rem;color:var(--muted)">4 lessons &middot; 3h 40m &middot; Completed</div></div></div></div>
+        <div class="card" style="padding:10px 14px;border-color:rgba(14,165,233,.35);background:rgba(14,165,233,.04)"><div style="display:flex;align-items:center;gap:8px"><div style="width:20px;height:20px;border-radius:50%;background:rgba(14,165,233,.2);border:2px solid #38bdf8;display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0;color:#38bdf8">&#9654;</div><div><div style="font-size:.78rem;font-weight:600;color:#38bdf8">Module 3: Transformer Architecture &mdash; Now Playing</div><div style="font-size:.63rem;color:var(--muted)">4 lessons &middot; 4h 20m</div></div></div></div>
+      </div>
+    </div>
+    <div style="width:300px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;background:var(--card)">
+      <div style="display:flex;border-bottom:1px solid var(--border);overflow-x:auto">
+        <div style="padding:9px 12px;font-size:.7rem;font-weight:700;color:#a78bfa;border-bottom:2px solid #7C3AED;white-space:nowrap">&#128221; Notes</div>
+        <div style="padding:9px 12px;font-size:.7rem;font-weight:600;color:var(--muted);white-space:nowrap">&#9989; Quiz</div>
+        <div style="padding:9px 12px;font-size:.7rem;font-weight:600;color:var(--muted);white-space:nowrap">&#127183; Flashcards</div>
+        <div style="padding:9px 12px;font-size:.7rem;font-weight:600;color:var(--muted);white-space:nowrap">&#129504; Mind Map</div>
+        <div style="padding:9px 12px;font-size:.7rem;font-weight:600;color:var(--muted);white-space:nowrap">&#128187; Code</div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px">
+        <div class="badge bp" style="align-self:flex-start">&#9889; AI-Generated Notes</div>
+        <div style="font-size:.78rem;font-weight:700;color:#fff">Key Concepts</div>
+        <div style="font-size:.75rem;color:var(--muted);line-height:1.65">
+          <p style="margin-bottom:6px">The <strong style="color:#fff">Transformer</strong> relies on <strong style="color:#a78bfa">self-attention</strong> to process sequences in parallel.</p>
+          <code style="display:block;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:9px;font-size:.7rem;margin:8px 0">Attention(Q,K,V) = softmax(QK&sup1;/&radic;d_k)&middot;V</code>
+          <p>Multi-head attention lets the model attend to different subspaces simultaneously.</p>
+        </div>
+        <div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:12px">
+          <div style="font-size:.7rem;font-weight:700;color:#a78bfa;margin-bottom:6px">&#128204; Summary Points</div>
+          <div style="font-size:.72rem;color:var(--muted);display:flex;flex-direction:column;gap:3px">
+            <div>&#9989; Transformers replace RNNs with attention</div>
+            <div>&#9989; Positional encoding preserves sequence order</div>
+            <div>&#9989; Scaled dot-product prevents gradient saturation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S5 AI TUTOR -->
+<div class="slide" id="s4">
+  <div class="slbl">&#129504; AI Tutor</div>
+  <div style="display:flex;height:100%">
+    <div class="sb" style="width:178px">
+      <div class="brand">&#9889; VedAstra</div>
+      <div class="ni">&#128202; Dashboard</div><div class="ni">&#128218; Courses</div><div class="ni">&#127909; Live Classes</div>
+      <div class="ni on">&#129504; AI Tutor</div><div class="ni">&#128200; Skill Graph</div><div class="ni">&#127919; Career Engine</div>
+    </div>
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="tb"><div style="flex:1"></div><div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px"><span class="rp on">student</span><span class="rp off">educator</span><span class="rp off">recruiter</span></div></div>
+      <div style="display:flex;flex:1;overflow:hidden">
+        <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="padding:5px 12px;border-radius:20px;border:1.5px solid rgba(124,58,237,.5);background:rgba(124,58,237,.12);font-size:.7rem;color:#a78bfa;font-weight:600">&#128302; Explain Transformers</div>
+            <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:.7rem;color:var(--muted);font-weight:600">&#128221; Generate MCQs</div>
+            <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:.7rem;color:var(--muted);font-weight:600">&#127760; Explain in Telugu</div>
+            <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:.7rem;color:var(--muted);font-weight:600">&#9889; Create Flashcards</div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem">&#9889;</div>
+              <div style="background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:12px 14px;max-width:76%;font-size:.82rem;color:var(--text);line-height:1.6">Hey Aarav! &#128075; I'm <strong>Veda</strong>, your personal AI mentor. You're working toward <strong>AI Engineering</strong> with a 128-day streak &mdash; incredible! &#128293;</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;flex-direction:row-reverse">
+              <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.72rem;font-weight:800">AS</div>
+              <div style="background:linear-gradient(135deg,#7C3AED,#0EA5E9);border-radius:14px 4px 14px 14px;padding:12px 14px;max-width:70%;font-size:.82rem;color:#fff;line-height:1.6">Explain how the Transformer architecture works in simple terms.</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.8rem">&#9889;</div>
+              <div style="background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:12px 14px;max-width:82%;font-size:.8rem;color:var(--text);line-height:1.7">
+                <div style="font-size:.88rem;font-weight:700;color:#fff;margin-bottom:8px">&#128302; Transformer Architecture</div>
+                <p style="margin-bottom:8px">A <strong>Transformer</strong> processes your entire input <em>at once</em> &mdash; unlike RNNs that read word by word.</p>
+                <code style="display:block;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:10px;font-size:.7rem;margin:8px 0">Attention(Q,K,V) = softmax(QK&sup1; / &radic;d_k) &middot; V</code>
+                <div style="display:flex;flex-direction:column;gap:3px;font-size:.73rem;color:var(--muted)">
+                  <div>&#9989; <strong style="color:#fff">Parallelizable</strong> &mdash; trains 10x faster than RNNs</div>
+                  <div>&#9989; <strong style="color:#fff">Powers GPT, BERT, Claude, Gemini</strong></div>
+                  <div>&#9989; <strong style="color:#fff">Long-range dependencies</strong> handled effortlessly</div>
+                </div>
+                <div style="margin-top:8px;font-size:.7rem;color:#a78bfa">+15 XP earned &#127881;</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center">
+            <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:8px 14px;font-size:.8rem;color:var(--muted)">Ask me anything about your courses...</div>
+            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.85rem">&#10148;</div>
+          </div>
+        </div>
+        <div style="width:248px;border-left:1px solid var(--border);padding:14px;display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.01)">
+          <div style="font-family:'Outfit';font-weight:700;font-size:.84rem">Flashcards <span class="badge bp" style="font-size:.62rem">3/8</span></div>
+          <div style="background:linear-gradient(135deg,#7C3AED,#0EA5E9);border-radius:12px;padding:18px;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:8px;cursor:pointer">
+            <div style="font-size:.58rem;color:rgba(255,255,255,.6);text-transform:uppercase;font-weight:700;letter-spacing:.08em">ANSWER &middot; CLICK TO FLIP</div>
+            <p style="font-size:.82rem;font-weight:600;color:#fff;line-height:1.5">A mathematical function that converts a vector of numbers into a probability distribution summing to 1.</p>
+          </div>
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);text-align:center;font-size:.72rem;font-weight:600;color:var(--muted);cursor:pointer">&larr; Prev</div>
+            <div style="flex:1;padding:7px;border-radius:8px;background:linear-gradient(135deg,#7C3AED,#0EA5E9);text-align:center;font-size:.72rem;font-weight:600;color:#fff;cursor:pointer">Next &rarr;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S6 SKILL GRAPH -->
+<div class="slide" id="s5">
+  <div class="slbl">&#128200; Skill Graph</div>
+  <div style="display:flex;height:100%">
+    <div class="sb" style="width:178px">
+      <div class="brand">&#9889; VedAstra</div>
+      <div class="ni">&#128202; Dashboard</div><div class="ni">&#128218; Courses</div><div class="ni">&#129504; AI Tutor</div>
+      <div class="ni on">&#128200; Skill Graph</div><div class="ni">&#127919; Career Engine</div>
+    </div>
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="tb"><div style="flex:1"></div></div>
+      <div style="flex:1;overflow-y:auto;padding:18px;display:flex;gap:18px;flex-wrap:wrap">
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:240px;padding:22px">
+          <div style="font-family:'Outfit';font-weight:700;font-size:.88rem;margin-bottom:14px">AI Skill Radar</div>
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <polygon points="100,20 166,60 166,140 100,180 34,140 34,60" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+            <polygon points="100,40 148,68 148,132 100,160 52,132 52,68" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+            <polygon points="100,60 131,77 131,123 100,140 69,123 69,77" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+            <line x1="100" y1="20" x2="100" y2="180" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <line x1="34" y1="60" x2="166" y2="140" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <line x1="166" y1="60" x2="34" y2="140" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <polygon points="100,34 157,72 153,135 100,168 48,133 48,70" fill="rgba(124,58,237,.25)" stroke="#7C3AED" stroke-width="2" stroke-dasharray="600" style="animation:radar 1.5s ease forwards"/>
+            <circle cx="100" cy="34" r="4" fill="#7C3AED"/><circle cx="157" cy="72" r="4" fill="#0EA5E9"/>
+            <circle cx="153" cy="135" r="4" fill="#10B981"/><circle cx="100" cy="168" r="4" fill="#F59E0B"/>
+            <circle cx="48" cy="133" r="4" fill="#EC4899"/><circle cx="48" cy="70" r="4" fill="#6366F1"/>
+            <text x="100" y="14" text-anchor="middle" font-size="9" fill="#a78bfa" font-weight="700">Programming</text>
+            <text x="172" y="68" text-anchor="start" font-size="9" fill="#38bdf8">AI &amp; ML</text>
+            <text x="172" y="138" text-anchor="start" font-size="9" fill="#34d399">Data</text>
+            <text x="100" y="184" text-anchor="middle" font-size="9" fill="#fbbf24">Problem Solving</text>
+            <text x="26" y="138" text-anchor="end" font-size="9" fill="#f472b6">Security</text>
+            <text x="26" y="68" text-anchor="end" font-size="9" fill="#818cf8">Cloud</text>
+          </svg>
+        </div>
+        <div class="card" style="flex:1;min-width:240px;padding:22px">
+          <div style="font-family:'Outfit';font-weight:700;font-size:.88rem;margin-bottom:14px">Competency Breakdown</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.72rem;color:var(--muted);width:130px">Programming</span><div style="flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden"><div style="width:88%;height:100%;background:linear-gradient(90deg,#7C3AED,#6366F1);border-radius:4px"></div></div><span style="font-size:.7rem;font-weight:700;color:#a78bfa;width:34px;text-align:right">88%</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.72rem;color:var(--muted);width:130px">AI &amp; ML</span><div style="flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,#0EA5E9,#7C3AED);border-radius:4px"></div></div><span style="font-size:.7rem;font-weight:700;color:#38bdf8;width:34px;text-align:right">82%</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.72rem;color:var(--muted);width:130px">Data Structures</span><div style="flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden"><div style="width:79%;height:100%;background:linear-gradient(90deg,#10B981,#0EA5E9);border-radius:4px"></div></div><span style="font-size:.7rem;font-weight:700;color:#34d399;width:34px;text-align:right">79%</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.72rem;color:var(--muted);width:130px">Problem Solving</span><div style="flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden"><div style="width:73%;height:100%;background:linear-gradient(90deg,#F59E0B,#10B981);border-radius:4px"></div></div><span style="font-size:.7rem;font-weight:700;color:#fbbf24;width:34px;text-align:right">73%</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.72rem;color:var(--muted);width:130px">Cybersecurity</span><div style="flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden"><div style="width:68%;height:100%;background:linear-gradient(90deg,#EC4899,#F59E0B);border-radius:4px"></div></div><span style="font-size:.7rem;font-weight:700;color:#f472b6;width:34px;text-align:right">68%</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.72rem;color:var(--muted);width:130px">Cloud Architecture</span><div style="flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden"><div style="width:61%;height:100%;background:linear-gradient(90deg,#EF4444,#EC4899);border-radius:4px"></div></div><span style="font-size:.7rem;font-weight:700;color:#f87171;width:34px;text-align:right">61%</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.72rem;color:var(--muted);width:130px">System Design</span><div style="flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden"><div style="width:55%;height:100%;background:linear-gradient(90deg,#6366F1,#EF4444);border-radius:4px"></div></div><span style="font-size:.7rem;font-weight:700;color:#818cf8;width:34px;text-align:right">55%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S7 CAREER ENGINE -->
+<div class="slide" id="s6">
+  <div class="slbl">&#127919; Career Engine</div>
+  <div style="display:flex;height:100%">
+    <div class="sb" style="width:178px">
+      <div class="brand">&#9889; VedAstra</div>
+      <div class="ni">&#128202; Dashboard</div><div class="ni">&#129504; AI Tutor</div><div class="ni">&#128200; Skill Graph</div>
+      <div class="ni on">&#127919; Career Engine</div><div class="ni">&#127942; Leaderboard</div><div class="ni">&#128101; Community</div>
+    </div>
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="tb"><div style="flex:1"></div></div>
+      <div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:linear-gradient(135deg,#1a1040,#0e1a30);border:1px solid rgba(124,58,237,.3);border-radius:16px;padding:22px 26px">
+          <div class="badge bp" style="margin-bottom:10px">&#129776; AI Career Match Engine</div>
+          <h2 style="font-family:'Outfit';font-size:1.25rem;font-weight:800;margin-bottom:6px">Your placement probability is <span style="color:#a78bfa">84%</span></h2>
+          <p style="color:var(--muted);font-size:.82rem;margin-bottom:14px">Based on your skill graph, certificates, and learning pace.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="flex:1;min-width:130px;background:rgba(255,255,255,.04);border-radius:10px;padding:10px 14px"><div style="font-size:.65rem;color:var(--muted);font-weight:600">Top Match Role</div><div style="font-family:'Outfit';font-weight:700;color:#fff">AI Engineer</div></div>
+            <div style="flex:1;min-width:130px;background:rgba(255,255,255,.04);border-radius:10px;padding:10px 14px"><div style="font-size:.65rem;color:var(--muted);font-weight:600">Salary Range</div><div style="font-family:'Outfit';font-weight:700;color:#34d399">$120K&ndash;$180K</div></div>
+            <div style="flex:1;min-width:130px;background:rgba(255,255,255,.04);border-radius:10px;padding:10px 14px"><div style="font-size:.65rem;color:var(--muted);font-weight:600">Gap Skills</div><div style="font-family:'Outfit';font-weight:700;color:#fbbf24">2 to Bridge</div></div>
+          </div>
+        </div>
+        <div style="font-family:'Outfit';font-weight:700;font-size:.88rem">&#128293; Live Openings Matched to You</div>
+        <div class="card" style="border-color:rgba(124,58,237,.3)"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:10px;background:rgba(14,165,233,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem">&#129695;</div><div><div style="font-size:.9rem;font-weight:700">Senior AI Engineer</div><div style="font-size:.72rem;color:var(--muted)">Microsoft &middot; Hyderabad &middot; Full-time</div></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge bg">98% Match</span><div style="padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#7C3AED,#0EA5E9);font-size:.75rem;font-weight:700;color:#fff">Apply Now</div></div></div></div>
+        <div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:10px;background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem">&#129001;</div><div><div style="font-size:.9rem;font-weight:700">ML Research Engineer</div><div style="font-size:.72rem;color:var(--muted)">Google &middot; Bengaluru &middot; Full-time</div></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge bb">91% Match</span><div style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);font-size:.75rem;font-weight:700;color:var(--muted)">Save</div></div></div></div>
+        <div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div style="display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:10px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem">&#129505;</div><div><div style="font-size:.9rem;font-weight:700">LLM Engineer</div><div style="font-size:.72rem;color:var(--muted)">OpenAI &middot; Remote &middot; Full-time</div></div></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ba">87% Match</span><div style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);font-size:.75rem;font-weight:700;color:var(--muted)">Save</div></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S8 COMMUNITY -->
+<div class="slide" id="s7">
+  <div class="slbl">&#128101; Community</div>
+  <div style="display:flex;height:100%">
+    <div class="sb" style="width:178px"><div class="brand">&#9889; VedAstra</div><div class="ni">&#128202; Dashboard</div><div class="ni">&#127919; Career Engine</div><div class="ni on">&#128101; Community</div></div>
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="tb"><div style="flex:1"></div></div>
+      <div style="flex:1;overflow:hidden;display:flex;padding:14px;gap:14px">
+        <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="padding:6px 16px;border-radius:20px;border:1.5px solid rgba(124,58,237,.5);background:rgba(124,58,237,.12);font-size:.75rem;font-weight:700;color:#a78bfa">&#127760; All</div>
+            <div style="padding:6px 16px;border-radius:20px;border:1px solid var(--border);font-size:.75rem;font-weight:600;color:var(--muted)">&#128172; Discussion</div>
+            <div style="padding:6px 16px;border-radius:20px;border:1px solid var(--border);font-size:.75rem;font-weight:600;color:var(--muted)">&#128640; Showcase</div>
+          </div>
+          <div class="card" style="padding:14px 16px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0">AS</div>
+              <div style="flex:1">
+                <div style="background:rgba(255,255,255,.04);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:9px 12px;font-size:.8rem;color:#fff;margin-bottom:8px">Just completed my AI Transformers module! &#128640; #VedAstra #AIEngineering</div>
+                <div style="display:flex;justify-content:flex-end;gap:8px"><span style="padding:5px 14px;border-radius:8px;border:1px solid var(--border);font-size:.72rem;font-weight:600;color:var(--muted)">Add Tags</span><div style="padding:5px 18px;border-radius:8px;background:linear-gradient(135deg,#7C3AED,#0EA5E9);font-size:.72rem;font-weight:700;color:#fff">Post</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.04);padding:14px 16px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0">AS</div>
+              <div style="flex:1">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:.875rem;font-weight:700">Aarav Sharma</span><span style="font-size:.68rem;color:var(--muted)">Student Developer</span><span style="margin-left:auto;font-size:.63rem;color:#a78bfa">Just now</span></div>
+                <span style="font-size:.65rem;background:rgba(124,58,237,.15);color:#a78bfa;padding:2px 8px;border-radius:99px;margin-top:2px;display:inline-block;border:1px solid rgba(124,58,237,.3)">&#128172; discussion</span>
+                <p style="font-size:.82rem;color:var(--text);margin-top:7px;line-height:1.65">Just completed my AI Transformers module! &#128640; #VedAstra #AIEngineering</p>
+                <div style="display:flex;gap:8px;margin-top:9px"><span style="font-size:.78rem;color:#EF4444">&#10084;&#65039; 1</span><span style="font-size:.78rem;color:var(--muted)">&#128172; 0</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="padding:14px 16px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#10B981,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0">PK</div>
+              <div style="flex:1">
+                <div style="display:flex;gap:8px;align-items:center"><span style="font-size:.875rem;font-weight:700">Priya Kumar</span><span style="font-size:.68rem;color:var(--muted)">AI Researcher</span><span style="margin-left:auto;font-size:.63rem;color:var(--muted)">2h ago</span></div>
+                <span style="font-size:.65rem;background:rgba(16,185,129,.15);color:#34d399;padding:2px 8px;border-radius:99px;margin-top:2px;display:inline-block;border:1px solid rgba(16,185,129,.3)">&#128640; showcase</span>
+                <p style="font-size:.82rem;color:var(--muted);margin-top:7px;line-height:1.65">Just got placed at Google Brain! VedAstra's AI career engine was spot on. &#128591;</p>
+                <div style="display:flex;gap:8px;margin-top:9px"><span style="font-size:.78rem;color:#EF4444">&#10084;&#65039; 412</span><span style="font-size:.78rem;color:var(--muted)">&#128172; 58</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:200px;flex-shrink:0;display:flex;flex-direction:column;gap:10px">
+          <div class="card" style="padding:14px">
+            <div style="font-family:'Outfit';font-weight:700;font-size:.8rem;margin-bottom:9px">&#128200; Trending</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;justify-content:space-between;font-size:.72rem"><span style="color:#a78bfa">#AIEngineering</span><span style="color:var(--muted)">4.8K</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:.72rem"><span style="color:#38bdf8">#MachineLearning</span><span style="color:var(--muted)">3.6K</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:.72rem"><span style="color:#34d399">#RAGPipelines</span><span style="color:var(--muted)">2.9K</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:.72rem"><span style="color:#fbbf24">#Transformers</span><span style="color:var(--muted)">2.3K</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S9 LIVE CLASSROOM -->
+<div class="slide" id="s8">
+  <div class="slbl">&#127909; Live Classroom Stream</div>
+  <div style="display:flex;height:100%">
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div style="background:#0D0E1A;border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span class="ldot"></span><span style="font-size:.7rem;font-weight:700;color:#f87171">LIVE</span></div>
+        <div style="font-size:.82rem;font-weight:700">Deep Learning: Backpropagation &mdash; Dr. Meera Iyer</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+          <div style="font-size:.7rem;color:var(--muted)">&#128101; 1,247 watching</div>
+          <div style="padding:5px 14px;border-radius:8px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);font-size:.7rem;font-weight:700;color:#f87171">Leave Stream</div>
+        </div>
+      </div>
+      <div style="flex:1;background:#1a1a2e;position:relative;display:flex;align-items:center;justify-content:center">
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.75" viewBox="0 0 800 380" preserveAspectRatio="xMidYMid meet">
+          <text x="50" y="42" fill="#a78bfa" font-size="17" font-weight="bold" font-family="Outfit">Neural Network &ndash; Backpropagation</text>
+          <circle cx="110" cy="140" r="22" fill="rgba(124,58,237,.2)" stroke="#7C3AED" stroke-width="2"/><text x="110" y="145" text-anchor="middle" fill="#fff" font-size="11">x&#8321;</text>
+          <circle cx="110" cy="210" r="22" fill="rgba(124,58,237,.2)" stroke="#7C3AED" stroke-width="2"/><text x="110" y="215" text-anchor="middle" fill="#fff" font-size="11">x&#8322;</text>
+          <circle cx="110" cy="280" r="22" fill="rgba(124,58,237,.2)" stroke="#7C3AED" stroke-width="2"/><text x="110" y="285" text-anchor="middle" fill="#fff" font-size="11">x&#8323;</text>
+          <circle cx="300" cy="120" r="22" fill="rgba(14,165,233,.2)" stroke="#0EA5E9" stroke-width="2"/><text x="300" y="125" text-anchor="middle" fill="#fff" font-size="11">h&#8321;</text>
+          <circle cx="300" cy="200" r="22" fill="rgba(14,165,233,.2)" stroke="#0EA5E9" stroke-width="2"/><text x="300" y="205" text-anchor="middle" fill="#fff" font-size="11">h&#8322;</text>
+          <circle cx="300" cy="280" r="22" fill="rgba(14,165,233,.2)" stroke="#0EA5E9" stroke-width="2"/><text x="300" y="285" text-anchor="middle" fill="#fff" font-size="11">h&#8323;</text>
+          <circle cx="490" cy="200" r="26" fill="rgba(16,185,129,.2)" stroke="#10B981" stroke-width="2"/><text x="490" y="205" text-anchor="middle" fill="#fff" font-size="11">&#375;&#770;</text>
+          <line x1="132" y1="140" x2="278" y2="120" stroke="rgba(124,58,237,.4)" stroke-width="1.2"/>
+          <line x1="132" y1="140" x2="278" y2="200" stroke="rgba(124,58,237,.4)" stroke-width="1.2"/>
+          <line x1="132" y1="210" x2="278" y2="120" stroke="rgba(124,58,237,.4)" stroke-width="1.2"/>
+          <line x1="132" y1="210" x2="278" y2="200" stroke="rgba(124,58,237,.4)" stroke-width="1.2"/>
+          <line x1="132" y1="210" x2="278" y2="280" stroke="rgba(124,58,237,.4)" stroke-width="1.2"/>
+          <line x1="132" y1="280" x2="278" y2="280" stroke="rgba(124,58,237,.4)" stroke-width="1.2"/>
+          <line x1="322" y1="120" x2="464" y2="200" stroke="rgba(14,165,233,.5)" stroke-width="1.5"/>
+          <line x1="322" y1="200" x2="464" y2="200" stroke="rgba(14,165,233,.5)" stroke-width="1.5"/>
+          <line x1="322" y1="280" x2="464" y2="200" stroke="rgba(14,165,233,.5)" stroke-width="1.5"/>
+          <path d="M 470 190 Q 390 110 320 120" stroke="#F59E0B" stroke-width="2" fill="none" stroke-dasharray="6,3"/>
+          <text x="380" y="95" fill="#fbbf24" font-size="11">&#8706;L/&#8706;w &larr; gradient</text>
+          <text x="530" y="200" fill="#34d399" font-size="13" font-weight="bold">Loss &#8595;</text>
+        </svg>
+        <div style="position:absolute;bottom:12px;left:12px;background:rgba(124,58,237,.9);border-radius:8px;padding:7px 12px;font-size:.75rem;font-weight:600;color:#fff">&#9998;&#65039; Whiteboard Mode</div>
+      </div>
+      <div style="background:#0D0E1A;border-top:1px solid var(--border);padding:9px 16px;display:flex;gap:10px">
+        <div style="padding:6px 14px;border-radius:8px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);font-size:.7rem;font-weight:700;color:#a78bfa">&#9998;&#65039; Board</div>
+        <div style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);font-size:.7rem;font-weight:600;color:var(--muted)">&#128187; Code Editor</div>
+        <div style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);font-size:.7rem;font-weight:600;color:var(--muted)">&#128203; Notes</div>
+      </div>
+    </div>
+    <div style="width:250px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;background:#111220">
+      <div style="padding:11px 14px;border-bottom:1px solid var(--border);font-size:.8rem;font-weight:700">Live Chat</div>
+      <div style="flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:7px"><div style="width:25px;height:25px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;flex-shrink:0">AS</div><div style="background:rgba(255,255,255,.04);border-radius:8px;padding:6px 10px;font-size:.73rem;color:var(--text)">This is so clear! Thank you &#128591;</div></div>
+        <div style="display:flex;gap:7px"><div style="width:25px;height:25px;border-radius:50%;background:linear-gradient(135deg,#10B981,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;flex-shrink:0">PK</div><div style="background:rgba(255,255,255,.04);border-radius:8px;padding:6px 10px;font-size:.73rem;color:var(--text)">Can you explain vanishing gradient?</div></div>
+        <div style="display:flex;gap:7px"><div style="width:25px;height:25px;border-radius:50%;background:linear-gradient(135deg,#EC4899,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;flex-shrink:0">MI</div><div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:6px 10px;font-size:.73rem;color:#fff">Sure! Vanishing gradient happens when gradients shrink as they backpropagate through many layers &#128201;</div></div>
+      </div>
+      <div style="padding:9px;border-top:1px solid var(--border);display:flex;gap:6px">
+        <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:7px 12px;font-size:.73rem;color:var(--muted)">Type...</div>
+        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:.75rem">&#10148;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S10 EDUCATOR -->
+<div class="slide" id="s9">
+  <div class="slbl">&#127891; Educator Dashboard</div>
+  <div style="display:flex;height:100%">
+    <div class="sb" style="width:178px">
+      <div class="brand">&#9889; VedAstra</div>
+      <div style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);margin-bottom:8px"><div style="font-size:.8rem;font-weight:700">Dr. Meera Iyer</div><div style="font-size:.62rem;color:var(--muted)">&#127891; Educator &middot; 84K followers</div></div>
+      <div class="ni on">&#128202; Dashboard</div><div class="ni">&#127909; Live Classes</div><div class="ni">&#128101; Community</div>
+    </div>
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="tb"><div style="flex:1"></div><div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px"><span class="rp off">student</span><span class="rp on">educator</span><span class="rp off">recruiter</span></div></div>
+      <div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:linear-gradient(135deg,#EC4899,#F59E0B);border-radius:16px;padding:20px 26px;color:#fff;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-20px;right:-20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.08)"></div>
+          <h2 style="font-family:'Outfit';font-size:1.3rem;font-weight:900">Welcome back, Dr. Meera! &#128075;</h2>
+          <p style="opacity:.85;margin-top:6px;font-size:.85rem">You've impacted 84K+ learners this month &#127775;</p>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;text-align:center"><div style="font-family:'Outfit';font-weight:900;font-size:1.2rem">84K</div><div style="font-size:.65rem;opacity:.8">Followers</div></div>
+            <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;text-align:center"><div style="font-family:'Outfit';font-weight:900;font-size:1.2rem">4.9&#11088;</div><div style="font-size:.65rem;opacity:.8">Avg Rating</div></div>
+            <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;text-align:center"><div style="font-family:'Outfit';font-weight:900;font-size:1.2rem">$12.4K</div><div style="font-size:.65rem;opacity:.8">This Month</div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px">
+          <div class="stat"><div class="sv" style="color:#f472b6">12</div><div class="sl">Active Courses</div><div class="ss">3 in review</div></div>
+          <div class="stat"><div class="sv" style="color:#fbbf24">84.3K</div><div class="sl">Total Students</div><div class="ss">+1.2K this week</div></div>
+          <div class="stat"><div class="sv" style="color:#34d399">4.92</div><div class="sl">Avg Rating</div><div class="ss">Top 1% educator</div></div>
+          <div class="stat"><div class="sv" style="color:#a78bfa">38</div><div class="sl">Live Sessions</div><div class="ss">This month</div></div>
+        </div>
+        <div>
+          <div style="font-family:'Outfit';font-weight:700;font-size:.88rem;margin-bottom:8px">Top Performing Courses</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="card" style="display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:8px;background:rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem">&#129776;</div><div><div style="font-size:.82rem;font-weight:600">Machine Learning Masterclass</div><div style="font-size:.68rem;color:var(--muted)">48,420 students &middot; 4.9 &#11088;</div></div></div><span class="badge bg">$8.2K/mo</span></div>
+            <div class="card" style="display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:8px;background:rgba(14,165,233,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem">&#129504;</div><div><div style="font-size:.82rem;font-weight:600">Deep Learning from Scratch</div><div style="font-size:.68rem;color:var(--muted)">32,100 students &middot; 4.8 &#11088;</div></div></div><span class="badge bb">$5.1K/mo</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S11 RECRUITER -->
+<div class="slide" id="s10">
+  <div class="slbl">&#128188; Recruiter Talent Board</div>
+  <div style="display:flex;flex-direction:column;height:100%">
+    <div class="tb"><div style="flex:1"></div><div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px"><span class="rp off">student</span><span class="rp off">educator</span><span class="rp on">recruiter</span></div></div>
+    <div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px">
+      <div style="background:linear-gradient(135deg,#0EA5E9,#7C3AED);border-radius:16px;padding:18px 26px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05)"></div>
+        <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0">&#129695;</div>
+        <div><h2 style="font-family:'Outfit';font-size:1.2rem;font-weight:900;color:#fff">Microsoft Talent Team</h2><p style="opacity:.8;font-size:.82rem;color:#fff;margin-top:2px">Hiring for AI Engineers &middot; 24 Open Positions</p></div>
+        <div style="display:flex;gap:10px;margin-left:auto">
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 14px;text-align:center"><div style="font-family:'Outfit';font-weight:800;font-size:.95rem;color:#fff">102</div><div style="font-size:.6rem;opacity:.8;color:#fff">Openings</div></div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 14px;text-align:center"><div style="font-family:'Outfit';font-weight:800;font-size:.95rem;color:#fff">310</div><div style="font-size:.6rem;opacity:.8;color:#fff">Candidates</div></div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 14px;text-align:center"><div style="font-family:'Outfit';font-weight:800;font-size:.95rem;color:#fff">88%</div><div style="font-size:.6rem;opacity:.8;color:#fff">Avg Score</div></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 310px;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="card" style="padding:16px;border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.04)">
+            <div style="display:flex;align-items:flex-start;gap:14px">
+              <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-family:'Outfit';font-weight:800;font-size:.95rem;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(124,58,237,.3)">AS</div>
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:.95rem;font-weight:700">Aarav Sharma</div><div style="display:flex;gap:6px"><span class="badge bp">88% avg</span><span class="badge bg">84% match</span></div></div>
+                <div style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap"><span style="font-size:.72rem;color:var(--muted)">&#127919; AI Engineer</span><span style="font-size:.72rem;color:var(--muted)">&#9889; Level 8</span><span style="font-size:.72rem;color:var(--muted)">&#127885; 8 Certs</span></div>
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:.68rem;color:var(--muted);width:110px">Programming</span><div style="flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden"><div style="width:88%;height:100%;background:linear-gradient(90deg,#7C3AED,#6366F1);border-radius:3px"></div></div><span style="font-size:.68rem;font-weight:700;color:#a78bfa;width:26px;text-align:right">88%</span></div>
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:.68rem;color:var(--muted);width:110px">AI &amp; ML</span><div style="flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,#0EA5E9,#7C3AED);border-radius:3px"></div></div><span style="font-size:.68rem;font-weight:700;color:#38bdf8;width:26px;text-align:right">82%</span></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px">
+                  <div style="padding:7px 16px;border-radius:8px;background:linear-gradient(135deg,#7C3AED,#0EA5E9);font-size:.72rem;font-weight:700;color:#fff">Schedule Interview</div>
+                  <div style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);font-size:.72rem;font-weight:700;color:var(--muted)">View Full Profile</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="padding:12px 14px"><div style="display:flex;align-items:center;gap:12px"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#10B981,#0EA5E9);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#fff">PK</div><div style="flex:1"><div style="font-size:.84rem;font-weight:700">Priya Kumar</div><div style="font-size:.68rem;color:var(--muted)">&#127919; Data Scientist &middot; Level 7</div></div><span class="badge bb">79% match</span></div></div>
+          <div class="card" style="padding:12px 14px"><div style="display:flex;align-items:center;gap:12px"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#EF4444);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#fff">RS</div><div style="flex:1"><div style="font-size:.84rem;font-weight:700">Rohan Singh</div><div style="font-size:.68rem;color:var(--muted)">&#128274; Cybersecurity &middot; Level 6</div></div><span class="badge ba">71% match</span></div></div>
+        </div>
+        <div class="card" style="padding:16px">
+          <div style="font-family:'Outfit';font-weight:700;font-size:.85rem;margin-bottom:12px">Pipeline Analytics</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.73rem;color:var(--muted)">Applications</span><div style="display:flex;align-items:center;gap:6px"><div style="width:90px;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden"><div style="width:85%;height:100%;background:#7C3AED;border-radius:3px"></div></div><span style="font-size:.7rem;font-weight:700">310</span></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.73rem;color:var(--muted)">Screened</span><div style="display:flex;align-items:center;gap:6px"><div style="width:90px;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden"><div style="width:62%;height:100%;background:#0EA5E9;border-radius:3px"></div></div><span style="font-size:.7rem;font-weight:700">192</span></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.73rem;color:var(--muted)">Interviews</span><div style="display:flex;align-items:center;gap:6px"><div style="width:90px;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden"><div style="width:28%;height:100%;background:#10B981;border-radius:3px"></div></div><span style="font-size:.7rem;font-weight:700">18</span></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.73rem;color:var(--muted)">Offers Made</span><div style="display:flex;align-items:center;gap:6px"><div style="width:90px;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden"><div style="width:8%;height:100%;background:#F59E0B;border-radius:3px"></div></div><span style="font-size:.7rem;font-weight:700">6</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S12 OUTRO -->
+<div class="slide" id="s11">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(124,58,237,.2),transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(14,165,233,.15),transparent 60%)"></div>
+  <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:40px;text-align:center">
+    <div style="width:88px;height:88px;border-radius:24px;background:linear-gradient(135deg,#7C3AED,#0EA5E9);display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:0 16px 48px rgba(124,58,237,.4);animation:float 4s ease-in-out infinite">&#9889;</div>
+    <h1 style="font-family:'Outfit';font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;line-height:1.15;animation:fadeUp .6s ease both">VedAstra AI<br/><span class="gt">Learn &middot; Teach &middot; Get Hired</span></h1>
+    <p style="color:var(--muted);font-size:1rem;max-width:520px;line-height:1.7;animation:fadeUp .6s ease .1s both">The world's first AI-adaptive learning ecosystem &mdash; powering 1.2M+ learners across 127 countries with personalized paths, verified skill graphs, and direct recruiter connections.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;animation:fadeUp .6s ease .2s both">
+      <span class="badge bp">&#129504; AI-Personalized</span><span class="badge bb">&#128202; Verified Skills</span><span class="badge bg">&#128188; Recruiter Access</span><span class="badge ba">&#127885; Gamified Certs</span><span class="badge br">&#127909; Live AI Classes</span>
+    </div>
+    <div style="background:linear-gradient(135deg,#7C3AED,#0EA5E9);border-radius:14px;padding:14px 36px;font-family:'Outfit';font-weight:800;font-size:1rem;cursor:pointer;box-shadow:0 8px 28px rgba(124,58,237,.35);color:#fff;animation:pulse 2.5s infinite">
+      &#128640; Open App &rarr; localhost:5173
+    </div>
+    <div style="font-size:.75rem;color:var(--muted)">Built with React + TypeScript + Vite &middot; Use &larr; &rarr; keys or click Prev / Next above</div>
+  </div>
+</div>
+
+</div><!-- /stage -->
+<script>
+const N=12,DUR=[5,4,6,6,6,5,5,5,6,5,6,5];
+let cur=0,playing=true,timer=null,elapsed=0,tick=null;
+const total=DUR.reduce((a,b)=>a+b,0);
+const g=id=>document.getElementById(id);
+const sl=i=>g('s'+i);
+function upd(){
+  g('steplbl').textContent='Step '+(cur+1)+' of '+N;
+  g('tmr').textContent=(cur+1)+'/'+N;
+  g('playBtn').textContent=playing?'\u23F8 Pause':'\u25B6 Play';
+  let done=0;for(let i=0;i<cur;i++)done+=DUR[i];done+=elapsed;
+  const p=(done/total)*100;
+  g('pf').style.width=p+'%';g('pd').style.left=p+'%';
+}
+function goTo(n){
+  if(n<0||n>=N)return;
+  const prev=sl(cur);
+  prev.classList.remove('active');prev.classList.add('leaving');
+  setTimeout(()=>prev.classList.remove('leaving'),700);
+  cur=n;elapsed=0;sl(cur).classList.add('active');
+  upd();if(playing)startTimer();
+}
+function nextSlide(){goTo(cur+1);}
+function prevSlide(){goTo(cur-1);}
+function startTimer(){
+  clearTimeout(timer);
+  timer=setTimeout(()=>{if(cur<N-1)nextSlide();else playing=false;},DUR[cur]*1000);
+}
+function togglePlay(){
+  playing=!playing;
+  if(playing)startTimer();else clearTimeout(timer);
+  upd();
+}
+function seekTo(e){
+  const r=e.currentTarget.getBoundingClientRect();
+  const pct=(e.clientX-r.left)/r.width;
+  const target=Math.floor(pct*total);
+  let acc=0;
+  for(let i=0;i<N;i++){if(acc+DUR[i]>target){goTo(i);return;}acc+=DUR[i];}
+  goTo(N-1);
+}
+upd();startTimer();
+tick=setInterval(()=>{if(!playing)return;elapsed+=.25;upd();},250);
+document.addEventListener('keydown',e=>{
+  if(e.key===' '){e.preventDefault();togglePlay();}
+  if(e.key==='ArrowRight')nextSlide();
+  if(e.key==='ArrowLeft')prevSlide();
+});
+</script>
+</body>
+</html>

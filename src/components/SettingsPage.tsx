@@ -1,32 +1,35 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { DEMO_STUDENTS } from '../demoData';
+import { useTranslation } from '../i18n';
 import { User, Bell, Lock, Palette, Globe, Brain, Shield, Link, ChevronRight } from 'lucide-react';
 
-const SETTING_SECTIONS = [
-  { id: 'profile', label: 'Profile', icon: User },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'language', label: 'Language', icon: Globe },
-  { id: 'ai', label: 'AI Preferences', icon: Brain },
-  { id: 'privacy', label: 'Privacy', icon: Shield },
-  { id: 'accounts', label: 'Connected Accounts', icon: Link },
-  { id: 'security', label: 'Security', icon: Lock },
+// Section IDs are stable; labels translated at render time
+const SETTING_SECTION_DEFS = [
+  { id: 'profile', labelKey: 'settings.profile', icon: User },
+  { id: 'notifications', labelKey: 'settings.notifications', icon: Bell },
+  { id: 'appearance', labelKey: 'settings.appearance', icon: Palette },
+  { id: 'language', labelKey: 'settings.language', icon: Globe },
+  { id: 'ai', labelKey: 'settings.aiPreferences', icon: Brain },
+  { id: 'privacy', labelKey: 'settings.privacy', icon: Shield },
+  { id: 'accounts', labelKey: 'settings.connectedAccounts', icon: Link },
+  { id: 'security', labelKey: 'settings.security', icon: Lock },
 ];
 
 export const SettingsPage: React.FC = () => {
   const { theme, toggleTheme, activeStudent, setActiveStudentId, language, setLanguage } = useApp();
+  const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState('profile');
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 24 }}>
       {/* Settings Nav */}
       <div className="card-flat" style={{ padding: '8px', height: 'fit-content' }}>
-        {SETTING_SECTIONS.map(s => {
+        {SETTING_SECTION_DEFS.map(s => {
           const Icon = s.icon;
           return (
             <button key={s.id} onClick={() => setActiveSection(s.id)} className={`nav-item ${activeSection === s.id ? 'active' : ''}`}>
-              <Icon size={15} /> {s.label}
+              <Icon size={15} /> {t(s.labelKey as any)}
               {activeSection === s.id && <ChevronRight size={12} style={{ marginLeft: 'auto' }} />}
             </button>
           );
@@ -45,25 +48,25 @@ export const SettingsPage: React.FC = () => {
               <div>
                 <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>{activeStudent.name}</h4>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0 0 10px' }}>{activeStudent.email}</p>
-                <button className="btn btn-secondary btn-sm">Change Avatar</button>
+                <button className="btn btn-secondary btn-sm">{t('settings.changeAvatar')}</button>
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label className="input-label">Full Name</label>
+                <label className="input-label">{t('settings.fullName')}</label>
                 <input className="input-field" defaultValue={activeStudent.name} />
               </div>
               <div>
-                <label className="input-label">Email</label>
+                <label className="input-label">{t('settings.email')}</label>
                 <input className="input-field" defaultValue={activeStudent.email} />
               </div>
               <div>
-                <label className="input-label">Bio</label>
+                <label className="input-label">{t('settings.bio')}</label>
                 <textarea className="input-field" rows={3} defaultValue={activeStudent.bio} />
               </div>
               <div>
-                <label className="input-label">Career Goal</label>
+                <label className="input-label">{t('settings.careerGoal')}</label>
                 <input className="input-field" defaultValue={activeStudent.goal} />
               </div>
             </div>
@@ -80,7 +83,7 @@ export const SettingsPage: React.FC = () => {
               </div>
             </div>
 
-            <button className="btn btn-primary" style={{ marginTop: 20 }}>Save Changes</button>
+            <button className="btn btn-primary" style={{ marginTop: 20 }}>{t('settings.saveChanges')}</button>
           </div>
         )}
 
@@ -90,11 +93,11 @@ export const SettingsPage: React.FC = () => {
             <div>
               <label className="input-label">Theme</label>
               <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                {['light', 'dark'].map(t => (
-                  <button key={t} onClick={() => { if (theme !== t) toggleTheme(); }} style={{ flex: 1, padding: '16px', borderRadius: 'var(--border-radius-md)', border: `2px solid ${theme === t ? 'var(--accent-primary)' : 'var(--border-card)'}`, background: t === 'dark' ? '#0D0E1A' : '#FAF8F5', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, transition: '0.2s' }}>
-                    <div style={{ fontSize: '1.4rem' }}>{t === 'dark' ? '🌙' : '☀️'}</div>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: t === 'dark' ? '#E2E8F0' : '#1A1523', textTransform: 'capitalize' }}>{t} Mode</div>
-                    {theme === t && <div style={{ fontSize: '0.68rem', color: 'var(--accent-primary)', fontWeight: 700 }}>Active</div>}
+                {['light', 'dark'].map(themeOption => (
+                  <button key={themeOption} onClick={() => { if (theme !== themeOption) toggleTheme(); }} style={{ flex: 1, padding: '16px', borderRadius: 'var(--border-radius-md)', border: `2px solid ${theme === themeOption ? 'var(--accent-primary)' : 'var(--border-card)'}`, background: themeOption === 'dark' ? '#0D0E1A' : '#FAF8F5', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, transition: '0.2s' }}>
+                    <div style={{ fontSize: '1.4rem' }}>{themeOption === 'dark' ? '🌙' : '☀️'}</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: themeOption === 'dark' ? '#E2E8F0' : '#1A1523' }}>{themeOption === 'dark' ? t('settings.darkMode') : t('settings.lightMode')}</div>
+                    {theme === themeOption && <div style={{ fontSize: '0.68rem', color: 'var(--accent-primary)', fontWeight: 700 }}>{t('settings.active')}</div>}
                   </button>
                 ))}
               </div>
